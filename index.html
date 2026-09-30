@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Video Hub</title>
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --surface: #1f1f1f;
+      --surface-hover: #272727;
+      --text: #ffffff;
+      --text-secondary: #aaa;
+      --accent: #ff0000;
+      --border: #333;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Header & Search Bar */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--accent);
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .search-container {
+      display: flex;
+      flex: 0 1 600px;
+      gap: 8px;
+    }
+
+    .search-container input {
+      width: 100%;
+      padding: 10px 16px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+    }
+
+    .search-container input:focus {
+      border-color: #555;
+    }
+
+    .search-container button {
+      padding: 10px 20px;
+      border-radius: 20px;
+      border: none;
+      background: var(--surface-hover);
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .search-container button:hover {
+      background: #333;
+    }
+
+    /* Main App Layout */
+    main {
+      padding: 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Video Player View */
+    .player-view {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .player-wrapper {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .player-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .video-info {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .video-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .channel-title {
+      color: var(--text-secondary);
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .channel-title:hover {
+      color: var(--text);
+    }
+
+    /* Video Grid (Feed / Search Results) */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.15s ease, background-color 0.15s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      background: var(--surface-hover);
+    }
+
+    .thumbnail-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #222;
+    }
+
+    .thumbnail-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .duration {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 3px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .details {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .details .title {
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .details .meta {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .status-msg {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-secondary);
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo" onclick="loadTrending()">
+      <span>▶</span> VideoHub
+    </div>
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Search videos or channels..." onkeydown="if(event.key==='Enter') searchVideos()" />
+      <button onclick="searchVideos()">Search</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Player View (hidden by default) -->
+    <div id="playerView" class="player-view">
+      <div class="player-wrapper">
+        <iframe id="videoIframe" allowfullscreen src="about:blank"></iframe>
+      </div>
+      <div class="video-info">
+        <h1 id="playerTitle" class="video-title">Loading...</h1>
+        <div id="playerChannel" class="channel-title">...</div>
+      </div>
+    </div>
+
+    <!-- Feed / Search Results Grid -->
+    <div id="feedGrid" class="grid"></div>
+    <div id="status" class="status-msg">Loading trending feed...</div>
+  </main>
+
+  <script>
+    // Public Piped API Instances (falls back automatically if one fails)
+    const API_INSTANCES = [
+      'https://pipedapi.kavin.rocks',
+      'https://api.piped.yt',
+      'https://pipedapi.tokhmi.xyz'
+    ];
+    let currentApi = API_INSTANCES[0];
+
+    // Helper function to format duration in seconds to MM:SS
+    function formatDuration(seconds) {
+      if (!seconds) return '';
+      const m = Math.floor(seconds / 60);
+      const s = Math.floor(seconds % 60);
+      return `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    // Load Trending Videos for the Homepage
+    async function loadTrending() {
+      showStatus("Loading trending videos...");
+      document.getElementById('playerView').style.display = 'none';
+      document.getElementById('feedGrid').style.display = 'grid';
+
+      try {
+        const res = await fetch(`${currentApi}/trending?region=US`);
+        const data = await res.json();
+        renderGrid(data);
+      } catch (err) {
+        showStatus("Failed to load trending feed. Trying alternative API instance...");
+        switchApi();
+      }
+    }
+
+    // Search Videos & Channels
+    async function searchVideos() {
+      const query = document.getElementById('searchInput').value.trim();
+      if (!query) return;
+
+      showStatus(`Searching for "${query}"...`);
+      document.getElementById('playerView').style.display = 'none';
+      document.getElementById('feedGrid').style.display = 'grid';
+
+      try {
+        const res = await fetch(`${currentApi}/search?q=${encodeURIComponent(query)}&filter=all`);
+        const data = await res.json();
+        renderGrid(data.items);
+      } catch (err) {
+        showStatus("Search failed. Please try again.");
+      }
+    }
+
+    // Render Video Cards into Grid
+    function renderGrid(items) {
+      const grid = document.getElementById('feedGrid');
+      grid.innerHTML = '';
+      hideStatus();
+
+      if (!items || items.length === 0) {
+        showStatus("No results found.");
+        return;
+      }
+
+      items.forEach(item => {
+        // Only display videos (skips playlists or channel-only results in feed)
+        if (item.type && item.type !== 'stream') return;
+
+        const videoId = item.url ? item.url.replace('/watch?v=', '') : item.id;
+        const title = item.title || 'Untitled';
+        const thumbnail = item.thumbnail || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+        const uploader = item.uploaderName || item.uploader || 'Unknown Channel';
+        const views = item.views ? `${(item.views / 1000).toFixed(1)}K views` : '';
+        const duration = formatDuration(item.duration);
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.onclick = () => openPlayer(videoId, title, uploader);
+
+        card.innerHTML = `
+          <div class="thumbnail-container">
+            <img src="${thumbnail}" alt="${title}" loading="lazy" />
+            ${duration ? `<span class="duration">${duration}</span>` : ''}
+          </div>
+          <div class="details">
+            <div class="title">${title}</div>
+            <div class="meta">${uploader} ${views ? '• ' + views : ''}</div>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    // Open Player View
+    function openPlayer(videoId, title, channel) {
+      document.getElementById('feedGrid').style.display = 'none';
+      hideStatus();
+
+      const playerView = document.getElementById('playerView');
+      const iframe = document.getElementById('videoIframe');
+      
+      // Use Piped Embed player
+      iframe.src = `https://piped.video/embed/${videoId}?autoplay=1`;
+      document.getElementById('playerTitle').textContent = title;
+      document.getElementById('playerChannel').textContent = channel;
+
+      playerView.style.display = 'flex';
+      window.scrollTo(0, 0);
+    }
+
+    function switchApi() {
+      const nextIndex = (API_INSTANCES.indexOf(currentApi) + 1) % API_INSTANCES.length;
+      currentApi = API_INSTANCES[nextIndex];
+      loadTrending();
+    }
+
+    function showStatus(msg) {
+      const statusEl = document.getElementById('status');
+      statusEl.textContent = msg;
+      statusEl.style.display = 'block';
+    }
+
+    function hideStatus() {
+      document.getElementById('status').style.display = 'none';
+    }
+
+    // Initial Load
+    loadTrending();
+  </script>
+</body>
+</html>
