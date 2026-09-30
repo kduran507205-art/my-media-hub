@@ -139,7 +139,7 @@
       color: var(--text);
     }
 
-    /* Video Grid (Feed / Search Results) */
+    /* Video Grid */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -222,16 +222,16 @@
       <span>▶</span> VideoHub
     </div>
     <div class="search-container">
-      <input type="text" id="searchInput" placeholder="Search videos or channels..." onkeydown="if(event.key==='Enter') searchVideos()" />
+      <input type="text" id="searchInput" placeholder="Search videos..." onkeydown="if(event.key==='Enter') searchVideos()" />
       <button onclick="searchVideos()">Search</button>
     </div>
   </header>
 
   <main>
-    <!-- Player View (hidden by default) -->
+    <!-- Player View -->
     <div id="playerView" class="player-view">
       <div class="player-wrapper">
-        <iframe id="videoIframe" allowfullscreen src="about:blank"></iframe>
+        <iframe id="videoIframe" allowfullscreen allow="autoplay; encrypted-media"></iframe>
       </div>
       <div class="video-info">
         <h1 id="playerTitle" class="video-title">Loading...</h1>
@@ -245,15 +245,18 @@
   </main>
 
   <script>
-    // Public Piped API Instances (falls back automatically if one fails)
+    // Updated working API instances (Invidious endpoints)
     const API_INSTANCES = [
-      'https://pipedapi.kavin.rocks',
-      'https://api.piped.yt',
-      'https://pipedapi.tokhmi.xyz'
+      'https://inv.privacyredirect.com/api/v1',
+      'https://invidious.nerdvpn.de/api/v1',
+      'https://vid.puffyan.us/api/v1'
     ];
-    let currentApi = API_INSTANCES[0];
+    let currentApiIndex = 0;
 
-    // Helper function to format duration in seconds to MM:SS
+    function getApiUrl() {
+      return API_INSTANCES[currentApiIndex];
+    }
+
     function formatDuration(seconds) {
       if (!seconds) return '';
       const m = Math.floor(seconds / 60);
@@ -261,23 +264,36 @@
       return `${m}:${s < 10 ? '0' : ''}${s}`;
     }
 
-    // Load Trending Videos for the Homepage
+    async function fetchWithFallback(endpoint) {
+      for (let i = 0; i < API_INSTANCES.length; i++) {
+        const apiUrl = API_INSTANCES[(currentApiIndex + i) % API_INSTANCES.length];
+        try {
+          const res = await fetch(`${apiUrl}${endpoint}`);
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+          currentApiIndex = (currentApiIndex + i) % API_INSTANCES.length;
+          return await res.json();
+        } catch (err) {
+          console.warn(`Instance ${apiUrl} failed, trying next...`);
+        }
+      }
+      throw new Error("All API instances failed to respond.");
+    }
+
+    // Load Trending Videos
     async function loadTrending() {
       showStatus("Loading trending videos...");
       document.getElementById('playerView').style.display = 'none';
       document.getElementById('feedGrid').style.display = 'grid';
 
       try {
-        const res = await fetch(`${currentApi}/trending?region=US`);
-        const data = await res.json();
+        const data = await fetchWithFallback('/trending?region=US');
         renderGrid(data);
       } catch (err) {
-        showStatus("Failed to load trending feed. Trying alternative API instance...");
-        switchApi();
+        showStatus("Failed to load feed. Public instances might be temporarily down.");
       }
     }
 
-    // Search Videos & Channels
+    // Search Videos
     async function searchVideos() {
       const query = document.getElementById('searchInput').value.trim();
       if (!query) return;
@@ -287,11 +303,10 @@
       document.getElementById('feedGrid').style.display = 'grid';
 
       try {
-        const res = await fetch(`${currentApi}/search?q=${encodeURIComponent(query)}&filter=all`);
-        const data = await res.json();
-        renderGrid(data.items);
+        const data = await fetchWithFallback(`/search?q=${encodeURIComponent(query)}&type=video`);
+        renderGrid(data);
       } catch (err) {
-        showStatus("Search failed. Please try again.");
+        showStatus("Search failed. Please try again in a moment.");
       }
     }
 
@@ -302,20 +317,20 @@
       hideStatus();
 
       if (!items || items.length === 0) {
-        showStatus("No results found.");
+        showStatus("No videos found.");
         return;
       }
 
       items.forEach(item => {
-        // Only display videos (skips playlists or channel-only results in feed)
-        if (item.type && item.type !== 'stream') return;
+        // Ensure item is a video with a valid ID
+        const videoId = item.videoId || item.id;
+        if (!videoId) return;
 
-        const videoId = item.url ? item.url.replace('/watch?v=', '') : item.id;
         const title = item.title || 'Untitled';
-        const thumbnail = item.thumbnail || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
-        const uploader = item.uploaderName || item.uploader || 'Unknown Channel';
-        const views = item.views ? `${(item.views / 1000).toFixed(1)}K views` : '';
-        const duration = formatDuration(item.duration);
+        const thumbnail = item.videoThumbnails?.[0]?.url || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+        const uploader = item.author || item.uploaderName || 'Unknown Channel';
+        const views = item.viewCount ? `${Number(item.viewCount).toLocaleString()} views` : '';
+        const duration = formatDuration(item.lengthSeconds || item.duration);
 
         const card = document.createElement('div');
         card.className = 'card';
@@ -336,7 +351,7 @@
       });
     }
 
-    // Open Player View
+    // Open Player View using standard YouTube embed
     function openPlayer(videoId, title, channel) {
       document.getElementById('feedGrid').style.display = 'none';
       hideStatus();
@@ -344,19 +359,13 @@
       const playerView = document.getElementById('playerView');
       const iframe = document.getElementById('videoIframe');
       
-      // Use Piped Embed player
-      iframe.src = `https://piped.video/embed/${videoId}?autoplay=1`;
+      // Direct YouTube embed for maximum reliability
+      iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`;
       document.getElementById('playerTitle').textContent = title;
       document.getElementById('playerChannel').textContent = channel;
 
       playerView.style.display = 'flex';
       window.scrollTo(0, 0);
-    }
-
-    function switchApi() {
-      const nextIndex = (API_INSTANCES.indexOf(currentApi) + 1) % API_INSTANCES.length;
-      currentApi = API_INSTANCES[nextIndex];
-      loadTrending();
     }
 
     function showStatus(msg) {
