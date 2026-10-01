@@ -2,49 +2,154 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>YouTube Search</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 40px; }
-    input, button { padding: 10px; font-size: 16px; }
-    .video-item { margin-top: 15px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    .search-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      background-color: #ff0000;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #cc0000;
+    }
+    .controls {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+    .video-card {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .video-card h3 {
+      margin: 0 0 8px 0;
+      font-size: 18px;
+    }
+    .video-card a {
+      color: #065fd4;
+      text-decoration: none;
+    }
+    .video-card a:hover {
+      text-decoration: underline;
+    }
+    .video-meta {
+      font-size: 14px;
+      color: #606060;
+    }
+    #error {
+      color: red;
+      font-weight: bold;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
 
-  <h2>YouTube Search</h2>
-  <input type="text" id="query" placeholder="Enter search term...">
-  <button onclick="runSearch()">Search</button>
+  <h2>YouTube Search Tool</h2>
 
+  <div class="search-container">
+    <input type="text" id="query" placeholder="Search videos or shorts...">
+    <button onclick="searchYouTube()">Search</button>
+  </div>
+
+  <div class="controls">
+    <label>
+      <input type="checkbox" id="shortsOnly"> Search Shorts Only
+    </label>
+  </div>
+
+  <div id="error"></div>
   <div id="results"></div>
 
-  <!-- Wrap your JavaScript inside <script> tags -->
   <script>
-    const API_KEY = 'YOUR_YOUTUBE_API_KEY';
+    // Replace this with your actual YouTube Data API Key
+    const API_KEY = 'YOUR_YOUTUBE_API_KEY_HERE';
 
-    async function runSearch() {
-      const query = document.getElementById('query').value;
-      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(query)}&type=video&key=${API_KEY}`;
+    async function searchYouTube() {
+      const queryInput = document.getElementById('query').value.trim();
+      const isShorts = document.getElementById('shortsOnly').checked;
+      const resultsDiv = document.getElementById('results');
+      const errorDiv = document.getElementById('error');
+
+      resultsDiv.innerHTML = '';
+      errorDiv.innerText = '';
+
+      if (!queryInput) {
+        errorDiv.innerText = 'Please enter a search term.';
+        return;
+      }
+
+      // Add #shorts hashtag to query if checkbox is ticked
+      const searchQuery = isShorts ? `${queryInput} #shorts` : queryInput;
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=${encodeURIComponent(searchQuery)}&type=video&key=${API_KEY}`;
 
       try {
         const response = await fetch(url);
         const data = await response.json();
-        
-        const resultsDiv = document.getElementById('results');
-        resultsDiv.innerHTML = '';
+
+        if (data.error) {
+          errorDiv.innerText = `Error: ${data.error.message}`;
+          return;
+        }
+
+        if (!data.items || data.items.length === 0) {
+          resultsDiv.innerHTML = '<p>No videos found.</p>';
+          return;
+        }
 
         data.items.forEach(item => {
           const title = item.snippet.title;
+          const channel = item.snippet.channelTitle;
           const videoId = item.id.videoId;
-          const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+          const publishedAt = item.snippet.publishedAt.split('T')[0];
+          
+          // Direct URL (Shorts link format if requested, standard YouTube link otherwise)
+          const videoUrl = isShorts 
+            ? `https://www.youtube.com/shorts/${videoId}` 
+            : `https://www.youtube.com/watch?v=${videoId}`;
 
           resultsDiv.innerHTML += `
-            <div class="video-item">
+            <div class="video-card">
               <h3><a href="${videoUrl}" target="_blank">${title}</a></h3>
+              <div class="video-meta">
+                Channel: <strong>${channel}</strong> | Published: ${publishedAt}
+              </div>
             </div>
           `;
         });
-      } catch (error) {
-        console.error('Error fetching videos:', error);
+      } catch (err) {
+        errorDiv.innerText = 'Failed to fetch data. Check your connection or API key.';
+        console.error(err);
       }
     }
   </script>
