@@ -26,7 +26,6 @@
       min-height: 100vh;
     }
 
-    /* Header & Search Bar */
     header {
       position: sticky;
       top: 0;
@@ -85,7 +84,6 @@
       background: #333;
     }
 
-    /* Main App Layout */
     main {
       padding: 24px;
       max-width: 1400px;
@@ -93,7 +91,6 @@
       width: 100%;
     }
 
-    /* Video Player View */
     .player-view {
       display: none;
       flex-direction: column;
@@ -132,14 +129,8 @@
     .channel-title {
       color: var(--text-secondary);
       font-size: 14px;
-      cursor: pointer;
     }
 
-    .channel-title:hover {
-      color: var(--text);
-    }
-
-    /* Video Grid */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -172,17 +163,6 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-    }
-
-    .duration {
-      position: absolute;
-      bottom: 8px;
-      right: 8px;
-      background: rgba(0, 0, 0, 0.8);
-      color: #fff;
-      padding: 3px 6px;
-      border-radius: 4px;
-      font-size: 12px;
     }
 
     .details {
@@ -218,7 +198,7 @@
 <body>
 
   <header>
-    <div class="logo" onclick="loadTrending()">
+    <div class="logo" onclick="loadMostPopular()">
       <span>▶</span> VideoHub
     </div>
     <div class="search-container">
@@ -228,7 +208,6 @@
   </header>
 
   <main>
-    <!-- Player View -->
     <div id="playerView" class="player-view">
       <div class="player-wrapper">
         <iframe id="videoIframe" allowfullscreen allow="autoplay; encrypted-media"></iframe>
@@ -239,57 +218,40 @@
       </div>
     </div>
 
-    <!-- Feed / Search Results Grid -->
     <div id="feedGrid" class="grid"></div>
-    <div id="status" class="status-msg">Loading trending feed...</div>
+    <div id="status" class="status-msg">Loading feed...</div>
   </main>
 
   <script>
-    // Updated working API instances (Invidious endpoints)
-    const API_INSTANCES = [
-      'https://inv.privacyredirect.com/api/v1',
-      'https://invidious.nerdvpn.de/api/v1',
-      'https://vid.puffyan.us/api/v1'
-    ];
-    let currentApiIndex = 0;
+    const API_KEY = 'AIzaSyDCZpIEH3_aWEjVTR0tv7ZHtgGDhZssjyI';
+    const BASE_URL = 'https://www.googleapis.com/youtube/v3';
 
-    function getApiUrl() {
-      return API_INSTANCES[currentApiIndex];
-    }
-
-    function formatDuration(seconds) {
-      if (!seconds) return '';
-      const m = Math.floor(seconds / 60);
-      const s = Math.floor(seconds % 60);
-      return `${m}:${s < 10 ? '0' : ''}${s}`;
-    }
-
-    async function fetchWithFallback(endpoint) {
-      for (let i = 0; i < API_INSTANCES.length; i++) {
-        const apiUrl = API_INSTANCES[(currentApiIndex + i) % API_INSTANCES.length];
-        try {
-          const res = await fetch(`${apiUrl}${endpoint}`);
-          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-          currentApiIndex = (currentApiIndex + i) % API_INSTANCES.length;
-          return await res.json();
-        } catch (err) {
-          console.warn(`Instance ${apiUrl} failed, trying next...`);
-        }
-      }
-      throw new Error("All API instances failed to respond.");
-    }
-
-    // Load Trending Videos
-    async function loadTrending() {
-      showStatus("Loading trending videos...");
+    // Load Popular Videos on Startup / Logo Click
+    async function loadMostPopular() {
+      showStatus("Loading popular videos...");
       document.getElementById('playerView').style.display = 'none';
       document.getElementById('feedGrid').style.display = 'grid';
 
       try {
-        const data = await fetchWithFallback('/trending?region=US');
-        renderGrid(data);
+        const url = `${BASE_URL}/videos?part=snippet,contentDetails,statistics&chart=mostPopular&regionCode=US&maxResults=24&key=${API_KEY}`;
+        const res = await fetch(url);
+        
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error?.message || `HTTP error ${res.status}`);
+        }
+        
+        const data = await res.json();
+        
+        renderGrid(data.items.map(item => ({
+          videoId: item.id,
+          title: item.snippet.title,
+          thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.default?.url,
+          uploader: item.snippet.channelTitle
+        })));
       } catch (err) {
-        showStatus("Failed to load feed. Public instances might be temporarily down.");
+        showStatus(`Failed to load videos: ${err.message}`);
+        console.error("YouTube API Error:", err);
       }
     }
 
@@ -303,47 +265,53 @@
       document.getElementById('feedGrid').style.display = 'grid';
 
       try {
-        const data = await fetchWithFallback(`/search?q=${encodeURIComponent(query)}&type=video`);
-        renderGrid(data);
+        const url = `${BASE_URL}/search?part=snippet&type=video&maxResults=24&q=${encodeURIComponent(query)}&key=${API_KEY}`;
+        const res = await fetch(url);
+
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error?.message || `HTTP error ${res.status}`);
+        }
+
+        const data = await res.json();
+
+        renderGrid(data.items.map(item => ({
+          videoId: item.id.videoId,
+          title: item.snippet.title,
+          thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.default?.url,
+          uploader: item.snippet.channelTitle
+        })));
       } catch (err) {
-        showStatus("Search failed. Please try again in a moment.");
+        showStatus(`Search failed: ${err.message}`);
+        console.error("YouTube API Error:", err);
       }
     }
 
-    // Render Video Cards into Grid
+    // Render Video Cards in Grid
     function renderGrid(items) {
       const grid = document.getElementById('feedGrid');
       grid.innerHTML = '';
       hideStatus();
 
       if (!items || items.length === 0) {
-        showStatus("No videos found.");
+        showStatus("No results found.");
         return;
       }
 
       items.forEach(item => {
-        // Ensure item is a video with a valid ID
-        const videoId = item.videoId || item.id;
-        if (!videoId) return;
-
-        const title = item.title || 'Untitled';
-        const thumbnail = item.videoThumbnails?.[0]?.url || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
-        const uploader = item.author || item.uploaderName || 'Unknown Channel';
-        const views = item.viewCount ? `${Number(item.viewCount).toLocaleString()} views` : '';
-        const duration = formatDuration(item.lengthSeconds || item.duration);
+        if (!item.videoId) return;
 
         const card = document.createElement('div');
         card.className = 'card';
-        card.onclick = () => openPlayer(videoId, title, uploader);
+        card.onclick = () => openPlayer(item.videoId, item.title, item.uploader);
 
         card.innerHTML = `
           <div class="thumbnail-container">
-            <img src="${thumbnail}" alt="${title}" loading="lazy" />
-            ${duration ? `<span class="duration">${duration}</span>` : ''}
+            <img src="${item.thumbnail}" alt="${item.title}" loading="lazy" />
           </div>
           <div class="details">
-            <div class="title">${title}</div>
-            <div class="meta">${uploader} ${views ? '• ' + views : ''}</div>
+            <div class="title">${item.title}</div>
+            <div class="meta">${item.uploader}</div>
           </div>
         `;
 
@@ -351,7 +319,7 @@
       });
     }
 
-    // Open Player View using standard YouTube embed
+    // Open Embedded Player View
     function openPlayer(videoId, title, channel) {
       document.getElementById('feedGrid').style.display = 'none';
       hideStatus();
@@ -359,7 +327,6 @@
       const playerView = document.getElementById('playerView');
       const iframe = document.getElementById('videoIframe');
       
-      // Direct YouTube embed for maximum reliability
       iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`;
       document.getElementById('playerTitle').textContent = title;
       document.getElementById('playerChannel').textContent = channel;
@@ -379,7 +346,7 @@
     }
 
     // Initial Load
-    loadTrending();
+    loadMostPopular();
   </script>
 </body>
 </html>
