@@ -14,6 +14,7 @@
       --card-bg: #121215;
       --card-hover: #1c1c21;
       --border: #27272a;
+      --border-focus: #3f3f46;
       --text: #fafafa;
       --text-muted: #a1a1aa;
       --accent: #ef4444;
@@ -40,7 +41,7 @@
     }
 
     /* ---------------------------------------------
-       NAVBAR / HEADER
+       NAVBAR
     --------------------------------------------- */
     header {
       position: sticky;
@@ -74,9 +75,7 @@
       color: var(--text);
       cursor: pointer;
       text-decoration: none;
-      transition: opacity 0.2s;
     }
-    .logo:hover { opacity: 0.9; }
 
     .logo-icon {
       width: 32px;
@@ -120,7 +119,6 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
 
-    /* Search Bar */
     .search-bar {
       flex: 0 1 500px;
       position: relative;
@@ -139,7 +137,7 @@
       transition: border-color 0.2s, background 0.2s;
     }
     .search-bar input:focus {
-      border-color: #3f3f46;
+      border-color: var(--border-focus);
       background: #1c1c21;
     }
 
@@ -157,13 +155,12 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: color 0.2s;
     }
     .search-btn:hover { color: var(--text); }
     .search-btn svg { width: 17px; height: 17px; }
 
     /* ---------------------------------------------
-       MAIN VIEW CONTAINER
+       LAYOUT CONTAINERS
     --------------------------------------------- */
     main {
       flex: 1;
@@ -196,7 +193,67 @@
     }
 
     /* ---------------------------------------------
-       FEED GRID (VIDEOS)
+       CREATOR SPOTLIGHT CARD (SEARCH)
+    --------------------------------------------- */
+    .creator-spotlight {
+      background: linear-gradient(180deg, #18181c 0%, #121215 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .spotlight-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .spotlight-avatar {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--border);
+      background: #27272a;
+    }
+
+    .spotlight-meta h2 {
+      font-size: 19px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .spotlight-meta p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      max-width: 580px;
+    }
+
+    .spotlight-btn {
+      background: #fafafa;
+      color: #09090b;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 20px;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+    }
+    .spotlight-btn:hover { opacity: 0.9; }
+
+    /* ---------------------------------------------
+       GRID CARDS
     --------------------------------------------- */
     .video-grid {
       display: grid;
@@ -217,7 +274,7 @@
     .video-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
-      border-color: #3f3f46;
+      border-color: var(--border-focus);
     }
 
     .thumb-wrap {
@@ -260,7 +317,6 @@
       font-size: 13px;
       color: var(--text-muted);
       font-weight: 500;
-      transition: color 0.15s;
       width: fit-content;
     }
     .card-channel:hover {
@@ -269,19 +325,17 @@
     }
 
     /* ---------------------------------------------
-       THEATER PLAYER VIEW (DESKTOP SPLIT)
+       THEATER PLAYER & ORGANIZED COMMENTS
     --------------------------------------------- */
     .player-layout {
       display: none;
-      grid-template-columns: 1fr 380px;
+      grid-template-columns: 1fr 400px;
       gap: 32px;
       align-items: start;
     }
 
-    @media (max-width: 1024px) {
-      .player-layout {
-        grid-template-columns: 1fr;
-      }
+    @media (max-width: 1080px) {
+      .player-layout { grid-template-columns: 1fr; }
     }
 
     .theater-frame {
@@ -292,7 +346,6 @@
       overflow: hidden;
       background: #000;
       border: 1px solid var(--border);
-      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
     }
 
     .theater-frame iframe {
@@ -326,7 +379,6 @@
       border-radius: 12px;
       width: fit-content;
       cursor: pointer;
-      transition: background 0.15s;
     }
     .channel-badge:hover { background: var(--card-hover); }
 
@@ -338,59 +390,191 @@
       background: #27272a;
     }
 
-    .channel-badge-info h4 {
-      font-size: 14.5px;
-      font-weight: 600;
-    }
+    .channel-badge-info h4 { font-size: 14.5px; font-weight: 600; }
+    .channel-badge-info p { font-size: 12px; color: var(--text-muted); }
 
-    .channel-badge-info p {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    /* Player Right Rail: Comments */
-    .theater-sidebar {
+    /* Polished Comment Section Box */
+    .comments-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      height: 720px;
+      overflow: hidden;
+    }
+
+    .comments-card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .comments-card-header h3 {
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .live-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #22c55e;
+      background: rgba(34, 197, 94, 0.1);
+      padding: 4px 8px;
+      border-radius: 9999px;
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    /* Comment Form */
+    .comment-input-area {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      background: rgba(255,255,255,0.01);
+    }
+
+    .user-avatar-mini {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #3f3f46;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .comment-form {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .comment-form input {
+      width: 100%;
+      background: none;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      padding: 6px 0;
+      color: #fff;
+      font-size: 13.5px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .comment-form input:focus { border-bottom-color: var(--text); }
+
+    .comment-form-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .comment-submit-btn {
+      background: #27272a;
+      color: #fff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .comment-submit-btn:hover { background: #3f3f46; }
+
+    /* Comment Item List */
+    .comments-scroll-list {
+      flex: 1;
+      padding: 16px 20px;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 18px;
-      max-height: 80vh;
-      overflow-y: auto;
     }
 
-    .theater-sidebar h3 {
-      font-size: 16px;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-    }
-
-    .comment-item {
+    .comment-row {
       display: flex;
       gap: 12px;
-      font-size: 13.5px;
-      line-height: 1.45;
+      font-size: 13px;
     }
 
-    .comment-item img {
-      width: 32px;
-      height: 32px;
+    .comment-row img {
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
+      object-fit: cover;
       flex-shrink: 0;
       background: #27272a;
     }
 
-    .comment-body strong {
-      display: block;
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-bottom: 2px;
+    .comment-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
     }
 
+    .comment-user-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .comment-author {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .comment-time {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .comment-text {
+      color: #e4e4e7;
+      line-height: 1.45;
+      font-size: 13px;
+      word-break: break-word;
+    }
+
+    .comment-actions-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 4px;
+      color: var(--text-muted);
+      font-size: 11.5px;
+    }
+    .comment-actions-bar span { cursor: pointer; display: flex; align-items: center; gap: 4px; }
+    .comment-actions-bar span:hover { color: #fff; }
+
     /* ---------------------------------------------
-       SHORTS FULLSCREEN SNAP FEED
+       SHORTS VIEWPORT & DRAWER
     --------------------------------------------- */
     .shorts-viewport {
       display: none;
@@ -403,7 +587,6 @@
       border-radius: 20px;
       border: 1px solid var(--border);
       background: #000;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
     }
     .shorts-viewport::-webkit-scrollbar { display: none; }
 
@@ -417,17 +600,8 @@
       background: #000;
     }
 
-    .short-iframe-wrap {
-      width: 100%;
-      height: 100%;
-      pointer-events: auto;
-    }
-
-    .short-iframe-wrap iframe {
-      width: 100% !important;
-      height: 100% !important;
-      border: none;
-    }
+    .short-iframe-wrap { width: 100%; height: 100%; }
+    .short-iframe-wrap iframe { width: 100% !important; height: 100% !important; border: none; }
 
     .short-glass-overlay {
       position: absolute;
@@ -440,11 +614,7 @@
       background: linear-gradient(0deg, rgba(9,9,11,0.95) 0%, rgba(9,9,11,0.4) 30%, transparent 60%);
     }
 
-    .short-info {
-      max-width: 76%;
-      pointer-events: auto;
-    }
-
+    .short-info { max-width: 76%; pointer-events: auto; }
     .short-info .author-tag {
       display: inline-block;
       font-size: 14px;
@@ -496,7 +666,7 @@
     .rail-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; }
     .rail-btn span { font-size: 10px; font-weight: 600; color: #d4d4d8; }
 
-    /* Shorts Drawer Sheet */
+    /* Shorts Drawer */
     .drawer {
       position: fixed;
       bottom: -100%;
@@ -504,7 +674,7 @@
       transform: translateX(-50%);
       width: 100%;
       max-width: 440px;
-      height: 62%;
+      height: 64%;
       background: #121215;
       border: 1px solid var(--border);
       border-bottom: none;
@@ -525,22 +695,8 @@
       border-bottom: 1px solid var(--border);
     }
     .drawer-top h4 { font-size: 15px; font-weight: 700; }
-    .close-btn {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      padding: 4px;
-    }
+    .close-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; }
     .close-btn svg { width: 20px; height: 20px; }
-
-    .drawer-content {
-      padding: 20px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
 
     /* ---------------------------------------------
        CHANNEL PROFILE VIEW
@@ -596,19 +752,18 @@
       font-weight: 500;
     }
 
-    /* State messages */
     .feedback-state {
       text-align: center;
       padding: 60px 0;
       color: var(--text-muted);
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 500;
     }
   </style>
 </head>
 <body>
 
-  <!-- App Header -->
+  <!-- Header -->
   <header>
     <div class="brand-group">
       <div class="logo" onclick="app.showFeed()">
@@ -631,7 +786,7 @@
     </div>
 
     <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="Search videos or creators..." onkeydown="if(event.key==='Enter') app.search()" />
+      <input type="text" id="searchInput" placeholder="Search creators, topics, or videos..." onkeydown="if(event.key==='Enter') app.search()" />
       <button class="search-btn" onclick="app.search()" aria-label="Search">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
       </button>
@@ -645,8 +800,10 @@
       Back
     </button>
 
-    <!-- Standard Feed Grid -->
+    <!-- Main Feed / Search Section -->
     <section id="feedSection">
+      <!-- Injected Creator Spotlight -->
+      <div id="creatorSpotlightContainer"></div>
       <div id="feedGrid" class="video-grid"></div>
     </section>
 
@@ -667,9 +824,31 @@
           </div>
         </div>
       </div>
-      <aside class="theater-sidebar">
-        <h3>Top Comments</h3>
-        <div id="commentsList" class="comments-list"></div>
+
+      <!-- Live Comment Section -->
+      <aside class="comments-card">
+        <div class="comments-card-header">
+          <h3>
+            Comments
+            <span id="commentCountBadge" style="font-size:12px;color:var(--text-muted);font-weight:500;"></span>
+          </h3>
+          <div class="live-indicator">
+            <span class="live-dot"></span> Live
+          </div>
+        </div>
+
+        <!-- Add Comment Form -->
+        <div class="comment-input-area">
+          <div class="user-avatar-mini">Y</div>
+          <form class="comment-form" onsubmit="event.preventDefault(); app.submitLocalComment();">
+            <input type="text" id="commentInputField" placeholder="Add a comment..." />
+            <div class="comment-form-actions">
+              <button type="submit" class="comment-submit-btn">Comment</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="commentsList" class="comments-scroll-list"></div>
       </aside>
     </section>
 
@@ -692,11 +871,11 @@
       <div id="channelVideosGrid" class="video-grid"></div>
     </section>
 
-    <!-- Status / Loading Feedback -->
+    <!-- Status Feedback -->
     <div id="statusMsg" class="feedback-state">Loading...</div>
   </main>
 
-  <!-- Shorts Slide-Up Comments Drawer -->
+  <!-- Shorts Drawer Sheet -->
   <div class="drawer" id="shortsDrawer">
     <div class="drawer-top">
       <h4>Comments</h4>
@@ -704,7 +883,18 @@
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
       </button>
     </div>
-    <div class="drawer-content" id="shortsDrawerComments"></div>
+    
+    <div class="comment-input-area">
+      <div class="user-avatar-mini">Y</div>
+      <form class="comment-form" onsubmit="event.preventDefault(); app.submitShortsComment();">
+        <input type="text" id="shortsCommentInput" placeholder="Add a comment..." />
+        <div class="comment-form-actions">
+          <button type="submit" class="comment-submit-btn">Comment</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="comments-scroll-list" id="shortsDrawerComments"></div>
   </div>
 
   <script src="https://www.youtube.com/iframe_api"></script>
@@ -712,7 +902,8 @@
   <script>
     const CONFIG = {
       API_KEY: 'AIzaSyDCZpIEH3_aWEjVTR0tv7ZHtgGDhZssjyI',
-      BASE_URL: 'https://www.googleapis.com/youtube/v3'
+      BASE_URL: 'https://www.googleapis.com/youtube/v3',
+      COMMENT_POLL_INTERVAL: 25000 // 25 seconds
     };
 
     const utils = {
@@ -722,6 +913,20 @@
         if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
         if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
         return n.toLocaleString();
+      },
+      timeAgo(dateString) {
+        const date = new Date(dateString);
+        const seconds = Math.floor((new Date() - date) / 1000);
+        if (seconds < 60) return 'just now';
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes}m ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+        const days = Math.floor(hours / 24);
+        if (days < 30) return `${days}d ago`;
+        const months = Math.floor(days / 30);
+        if (months < 12) return `${months}mo ago`;
+        return `${Math.floor(months / 12)}y ago`;
       }
     };
 
@@ -729,6 +934,10 @@
       constructor() {
         this.currentView = 'feed';
         this.prevView = 'feed';
+        this.activeVideoId = null;
+        this.activeShortsVideoId = null;
+        this.commentPollTimer = null;
+        this.localComments = new Map(); // stores local user comments by videoId
         this.shortsPlayers = new Map();
         this.shortsObserver = null;
         this.init();
@@ -751,6 +960,11 @@
       setView(view) {
         this.prevView = this.currentView;
         this.currentView = view;
+
+        // Clear comment live-poller if leaving player views
+        if (view !== 'theater' && !document.getElementById('shortsDrawer').classList.contains('open')) {
+          this.stopCommentPolling();
+        }
 
         document.getElementById('feedSection').style.display = view === 'feed' ? 'block' : 'none';
         document.getElementById('theaterSection').style.display = view === 'theater' ? 'grid' : 'none';
@@ -790,10 +1004,12 @@
         }
       }
 
-      // --- FEED & SEARCH ---
+      // --- FEED & CREATOR SEARCH ---
       async loadPopularFeed() {
         this.setStatus('Discovering trending videos...');
+        document.getElementById('creatorSpotlightContainer').innerHTML = '';
         this.setView('feed');
+
         try {
           const res = await fetch(`${CONFIG.BASE_URL}/videos?part=snippet,statistics&chart=mostPopular&regionCode=US&maxResults=24&key=${CONFIG.API_KEY}`);
           const data = await res.json();
@@ -816,12 +1032,23 @@
 
         this.setStatus(`Searching for "${query}"...`);
         this.setView('feed');
+        document.getElementById('creatorSpotlightContainer').innerHTML = '';
 
         try {
-          const res = await fetch(`${CONFIG.BASE_URL}/search?part=snippet&type=video&maxResults=24&q=${encodeURIComponent(query)}&key=${CONFIG.API_KEY}`);
+          // Query both channels and videos
+          const res = await fetch(`${CONFIG.BASE_URL}/search?part=snippet&type=video,channel&maxResults=24&q=${encodeURIComponent(query)}&key=${CONFIG.API_KEY}`);
           const data = await res.json();
           if (!data.items) throw new Error('Search request failed');
-          this.renderCards(data.items.map(item => ({
+
+          // Check if top result or any item is a creator channel
+          const matchedChannel = data.items.find(i => i.id.kind === 'youtube#channel');
+          if (matchedChannel) {
+            this.fetchAndRenderCreatorSpotlight(matchedChannel.id.channelId);
+          }
+
+          // Filter standard video results
+          const videoItems = data.items.filter(i => i.id.kind === 'youtube#video');
+          this.renderCards(videoItems.map(item => ({
             id: item.id.videoId,
             channelId: item.snippet.channelId,
             title: item.snippet.title,
@@ -830,6 +1057,32 @@
           })), 'feedGrid');
         } catch (err) {
           this.setStatus(`Search failed: ${err.message}`);
+        }
+      }
+
+      async fetchAndRenderCreatorSpotlight(channelId) {
+        try {
+          const res = await fetch(`${CONFIG.BASE_URL}/channels?part=snippet,statistics&id=${channelId}&key=${CONFIG.API_KEY}`);
+          const data = await res.json();
+          if (!data.items?.[0]) return;
+
+          const ch = data.items[0];
+          const container = document.getElementById('creatorSpotlightContainer');
+          container.innerHTML = `
+            <div class="creator-spotlight">
+              <div class="spotlight-left">
+                <img class="spotlight-avatar" src="${ch.snippet.thumbnails.medium?.url || ch.snippet.thumbnails.default?.url}" alt="${ch.snippet.title}" />
+                <div class="spotlight-meta">
+                  <h2>${ch.snippet.title}</h2>
+                  <p>${utils.formatCount(ch.statistics.subscriberCount)} subscribers • ${utils.formatCount(ch.statistics.videoCount)} videos</p>
+                  <p style="margin-top:4px;color:#d4d4d8;">${ch.snippet.description || 'Visit channel profile to view full video catalog.'}</p>
+                </div>
+              </div>
+              <button class="spotlight-btn" onclick="app.loadChannel('${ch.id}')">View Channel</button>
+            </div>
+          `;
+        } catch (e) {
+          console.warn('Could not load channel spotlight', e);
         }
       }
 
@@ -870,6 +1123,7 @@
 
       // --- THEATER PLAYER ---
       async playVideo(id, title, channelId, channelTitle) {
+        this.activeVideoId = id;
         this.setView('theater');
 
         document.getElementById('videoIframe').src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1`;
@@ -877,10 +1131,10 @@
         document.getElementById('playerChannelName').textContent = channelTitle;
         document.getElementById('playerSubscriberCount').textContent = 'Loading subscriber count...';
         document.getElementById('playerChannelAvatar').src = '';
+        document.getElementById('commentInputField').value = '';
 
         document.getElementById('playerChannelRow').onclick = () => this.loadChannel(channelId);
 
-        // Fetch channel metrics
         try {
           const res = await fetch(`${CONFIG.BASE_URL}/channels?part=snippet,statistics&id=${channelId}&key=${CONFIG.API_KEY}`);
           const data = await res.json();
@@ -893,37 +1147,128 @@
           console.warn('Channel stats unavailable');
         }
 
-        this.loadComments(id, 'commentsList');
+        this.refreshComments(id, 'commentsList');
+        this.startCommentPolling(id, 'commentsList');
       }
 
-      async loadComments(videoId, targetId) {
+      // --- LIVE COMMENTS SYSTEM ---
+      startCommentPolling(videoId, containerId) {
+        this.stopCommentPolling();
+        this.commentPollTimer = setInterval(() => {
+          this.refreshComments(videoId, containerId, true);
+        }, CONFIG.COMMENT_POLL_INTERVAL);
+      }
+
+      stopCommentPolling() {
+        if (this.commentPollTimer) {
+          clearInterval(this.commentPollTimer);
+          this.commentPollTimer = null;
+        }
+      }
+
+      async refreshComments(videoId, targetId, isPolling = false) {
         const target = document.getElementById(targetId);
-        target.innerHTML = '<p class="feedback-state">Loading comments...</p>';
+        if (!isPolling) {
+          target.innerHTML = '<p class="feedback-state">Loading conversation...</p>';
+        }
 
         try {
-          const res = await fetch(`${CONFIG.BASE_URL}/commentThreads?part=snippet&videoId=${videoId}&maxResults=15&key=${CONFIG.API_KEY}`);
+          const res = await fetch(`${CONFIG.BASE_URL}/commentThreads?part=snippet&videoId=${videoId}&maxResults=25&key=${CONFIG.API_KEY}`);
           const data = await res.json();
 
-          if (!data.items?.length) {
-            target.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:20px 0;">Comments are turned off or none exist.</p>';
+          if (!data.items?.length && (!this.localComments.has(videoId) || this.localComments.get(videoId).length === 0)) {
+            target.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:24px 0;text-align:center;">Comments are turned off or none exist.</p>';
             return;
           }
 
-          target.innerHTML = data.items.map(item => {
+          // Fetch local mock comments saved for this video
+          const userComments = this.localComments.get(videoId) || [];
+
+          // Merge local posts at top + API comments
+          const apiComments = (data.items || []).map(item => {
             const c = item.snippet.topLevelComment.snippet;
-            return `
-              <div class="comment-item">
-                <img src="${c.authorProfileImageUrl}" alt="${c.authorDisplayName}" />
-                <div class="comment-body">
-                  <strong>${c.authorDisplayName}</strong>
-                  ${c.textDisplay}
+            return {
+              author: c.authorDisplayName,
+              avatar: c.authorProfileImageUrl,
+              text: c.textDisplay,
+              publishedAt: c.publishedAt,
+              likeCount: c.likeCount || 0
+            };
+          });
+
+          const merged = [...userComments, ...apiComments];
+
+          target.innerHTML = merged.map(c => `
+            <div class="comment-row">
+              <img src="${c.avatar}" alt="${c.author}" />
+              <div class="comment-content">
+                <div class="comment-user-line">
+                  <span class="comment-author">${c.author}</span>
+                  <span class="comment-time">${utils.timeAgo(c.publishedAt)}</span>
+                </div>
+                <div class="comment-text">${c.text}</div>
+                <div class="comment-actions-bar">
+                  <span>👍 ${c.likeCount > 0 ? utils.formatCount(c.likeCount) : ''}</span>
+                  <span>Reply</span>
                 </div>
               </div>
-            `;
-          }).join('');
+            </div>
+          `).join('');
+
+          const countBadge = document.getElementById('commentCountBadge');
+          if (countBadge && targetId === 'commentsList') {
+            countBadge.textContent = `(${merged.length})`;
+          }
+
         } catch (err) {
-          target.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">Comments could not be retrieved.</p>';
+          if (!isPolling) {
+            target.innerHTML = '<p style="color:var(--text-muted);font-size:13px;text-align:center;">Comments could not be retrieved.</p>';
+          }
         }
+      }
+
+      submitLocalComment() {
+        const input = document.getElementById('commentInputField');
+        const text = input.value.trim();
+        if (!text || !this.activeVideoId) return;
+
+        const newComment = {
+          author: 'You',
+          avatar: 'https://www.gstatic.com/images/branding/product/2x/avatar_square_grey_512dp.png',
+          text: text,
+          publishedAt: new Date().toISOString(),
+          likeCount: 0
+        };
+
+        if (!this.localComments.has(this.activeVideoId)) {
+          this.localComments.set(this.activeVideoId, []);
+        }
+        this.localComments.get(this.activeVideoId).unshift(newComment);
+
+        input.value = '';
+        this.refreshComments(this.activeVideoId, 'commentsList', true);
+      }
+
+      submitShortsComment() {
+        const input = document.getElementById('shortsCommentInput');
+        const text = input.value.trim();
+        if (!text || !this.activeShortsVideoId) return;
+
+        const newComment = {
+          author: 'You',
+          avatar: 'https://www.gstatic.com/images/branding/product/2x/avatar_square_grey_512dp.png',
+          text: text,
+          publishedAt: new Date().toISOString(),
+          likeCount: 0
+        };
+
+        if (!this.localComments.has(this.activeShortsVideoId)) {
+          this.localComments.set(this.activeShortsVideoId, []);
+        }
+        this.localComments.get(this.activeShortsVideoId).unshift(newComment);
+
+        input.value = '';
+        this.refreshComments(this.activeShortsVideoId, 'shortsDrawerComments', true);
       }
 
       // --- SHORTS VERTICAL FEED ---
@@ -1021,18 +1366,22 @@
       }
 
       openShortsDrawer(videoId) {
+        this.activeShortsVideoId = videoId;
         document.getElementById('shortsDrawer').classList.add('open');
-        this.loadComments(videoId, 'shortsDrawerComments');
+        document.getElementById('shortsCommentInput').value = '';
+        this.refreshComments(videoId, 'shortsDrawerComments');
+        this.startCommentPolling(videoId, 'shortsDrawerComments');
       }
 
       closeShortsDrawer() {
         document.getElementById('shortsDrawer').classList.remove('open');
+        this.stopCommentPolling();
       }
 
-      // --- CHANNEL PROFILE ---
+      // --- CHANNEL PROFILE VIEW ---
       async loadChannel(channelId) {
         this.setView('channel');
-        this.setStatus('Loading channel profile...');
+        this.setStatus('Loading creator profile...');
 
         try {
           const res = await fetch(`${CONFIG.BASE_URL}/channels?part=snippet,contentDetails,statistics,brandingSettings&id=${channelId}&key=${CONFIG.API_KEY}`);
