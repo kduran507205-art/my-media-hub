@@ -1,50 +1,53 @@
-import googleapiclient.discovery
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>YouTube Search</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    input, button { padding: 10px; font-size: 16px; }
+    .video-item { margin-top: 15px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+  </style>
+</head>
+<body>
 
-def search_youtube(query, max_results=20, search_type="all"):
-    """
-    search_type options:
-      - "all": standard videos and shorts
-      - "shorts": specifically target Shorts (using #shorts filter)
-    """
-    API_KEY = "YOUR_API_KEY_HERE"  # Replace with your YouTube Data API Key
-    youtube = googleapiclient.discovery.build("youtube", "v3", developerKey=API_KEY)
+  <h2>YouTube Search</h2>
+  <input type="text" id="query" placeholder="Enter search term...">
+  <button onclick="runSearch()">Search</button>
 
-    # Append hashtag if specifically looking for shorts
-    search_query = f"{query} #shorts" if search_type == "shorts" else query
+  <div id="results"></div>
 
-    request = youtube.search().list(
-        q=search_query,
-        part="snippet",
-        maxResults=max_results,
-        type="video"
-    )
-    
-    response = request.execute()
-    results = []
+  <!-- Wrap your JavaScript inside <script> tags -->
+  <script>
+    const API_KEY = 'YOUR_YOUTUBE_API_KEY';
 
-    for item in response.get("items", []):
-        video_id = item["id"]["videoId"]
-        snippet = item["snippet"]
+    async function runSearch() {
+      const query = document.getElementById('query').value;
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(query)}&type=video&key=${API_KEY}`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
         
-        results.append({
-            "title": snippet["title"],
-            "channel": snippet["channelTitle"],
-            "published_at": snippet["publishedAt"][:10],
-            "url": f"https://www.youtube.com/watch?v={video_id}"
-        })
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = '';
 
-    return results
+        data.items.forEach(item => {
+          const title = item.snippet.title;
+          const videoId = item.id.videoId;
+          const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
-# Example Usage:
-KEYWORD = "Python programming"  # Your search term
-results = search_youtube(query=KEYWORD, max_results=15, search_type="all")
+          resultsDiv.innerHTML += `
+            <div class="video-item">
+              <h3><a href="${videoUrl}" target="_blank">${title}</a></h3>
+            </div>
+          `;
+        });
+      } catch (error) {
+        console.error('Error fetching videos:', error);
+      }
+    }
+  </script>
 
-# Save to a clean text file
-with open("youtube_results.txt", "w", encoding="utf-8") as f:
-    for i, res in enumerate(results, 1):
-        f.write(f"{i}. {res['title']}\n")
-        f.write(f"   Channel: {res['channel']}\n")
-        f.write(f"   Published: {res['published_at']}\n")
-        f.write(f"   URL: {res['url']}\n\n")
-
-print(f"Successfully fetched {len(results)} videos!")
+</body>
+</html>
