@@ -3,33 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VideoHub — Modern Web Player</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <title>StreamHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   
   <style>
     :root {
-      --bg: #09090b;
-      --card-bg: #121215;
-      --card-hover: #1c1c21;
-      --border: #27272a;
-      --border-focus: #3f3f46;
-      --text: #fafafa;
-      --text-muted: #a1a1aa;
-      --accent: #ef4444;
-      --accent-glow: rgba(239, 68, 68, 0.2);
-      --radius: 14px;
-      --header-h: 68px;
+      --bg: #0f0f0f;
+      --surface: #212121;
+      --surface-hover: #303030;
+      --border: #3f3f3f;
+      --text: #f1f1f1;
+      --text-muted: #aaa;
+      --accent: #3ea6ff;
+      --accent-red: #ff0000;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-      -webkit-font-smoothing: antialiased;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
 
     body {
       background-color: var(--bg);
@@ -41,860 +32,437 @@
     }
 
     /* ---------------------------------------------
-       NAVBAR
+       YOUTUBE TOP HEADER
     --------------------------------------------- */
     header {
-      position: sticky;
+      position: fixed;
       top: 0;
-      z-index: 100;
-      height: var(--header-h);
-      background: rgba(9, 9, 11, 0.85);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border);
+      left: 0;
+      right: 0;
+      height: 56px;
+      background: var(--bg);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 32px;
-      gap: 24px;
+      padding: 0 16px;
+      z-index: 200;
+      border-bottom: 1px solid transparent;
     }
 
-    .brand-group {
+    .header-left, .header-right {
       display: flex;
       align-items: center;
-      gap: 36px;
+      gap: 16px;
     }
+
+    .menu-icon, .header-icon {
+      background: none;
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .menu-icon:hover, .header-icon:hover { background: var(--surface-hover); }
+    .menu-icon svg, .header-icon svg { width: 24px; height: 24px; fill: currentColor; }
 
     .logo {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 19px;
+      gap: 4px;
+      font-size: 18px;
       font-weight: 700;
-      letter-spacing: -0.5px;
-      color: var(--text);
+      letter-spacing: -1.5px;
+      color: #fff;
       cursor: pointer;
       text-decoration: none;
     }
-
-    .logo-icon {
-      width: 32px;
-      height: 32px;
-      background: linear-gradient(135deg, #ef4444, #b91c1c);
-      border-radius: 8px;
+    .logo-box {
+      background: var(--accent-red);
+      width: 28px;
+      height: 20px;
+      border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 14px var(--accent-glow);
     }
-    .logo-icon svg { width: 16px; height: 16px; fill: #fff; }
+    .logo-box svg { width: 12px; height: 12px; fill: #fff; }
 
-    .nav-tabs {
-      display: flex;
-      background: #18181b;
-      padding: 4px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-    }
-
-    .nav-tab {
+    /* Search Bar */
+    .header-center {
       display: flex;
       align-items: center;
-      gap: 8px;
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 13.5px;
-      font-weight: 600;
-      padding: 6px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .nav-tab svg { width: 16px; height: 16px; stroke-width: 2.2; }
-    .nav-tab:hover { color: var(--text); }
-    .nav-tab.active {
-      background: #27272a;
-      color: var(--text);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      flex: 0 1 600px;
+      gap: 12px;
     }
 
-    .search-bar {
-      flex: 0 1 500px;
-      position: relative;
+    .search-form {
+      display: flex;
+      width: 100%;
+      background: #121212;
+      border: 1px solid var(--border);
+      border-radius: 40px 0 0 40px;
+      padding-left: 16px;
+      overflow: hidden;
     }
 
-    .search-bar input {
+    .search-form input {
       width: 100%;
       height: 40px;
-      background: #18181b;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 0 42px 0 16px;
-      color: var(--text);
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .search-bar input:focus {
-      border-color: var(--border-focus);
-      background: #1c1c21;
-    }
-
-    .search-btn {
-      position: absolute;
-      right: 6px;
-      top: 50%;
-      transform: translateY(-50%);
       background: none;
       border: none;
+      color: #fff;
+      font-size: 16px;
+      outline: none;
+    }
+
+    .search-submit {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: none;
+      border-radius: 0 40px 40px 0;
+      width: 64px;
+      height: 40px;
       cursor: pointer;
-      padding: 6px;
-      border-radius: 6px;
-      color: var(--text-muted);
       display: flex;
       align-items: center;
       justify-content: center;
+      color: var(--text-muted);
     }
-    .search-btn:hover { color: var(--text); }
-    .search-btn svg { width: 17px; height: 17px; }
+    .search-submit:hover { background: var(--surface-hover); color: #fff; }
+    .search-submit svg { width: 20px; height: 20px; fill: currentColor; }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      color: #fff;
+    }
 
     /* ---------------------------------------------
-       LAYOUT CONTAINERS
+       APP BODY CONTAINER & SIDEBAR
     --------------------------------------------- */
+    .app-body {
+      display: flex;
+      margin-top: 56px;
+      min-height: calc(100vh - 56px);
+    }
+
+    sidebar {
+      width: 240px;
+      background: var(--bg);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: sticky;
+      top: 56px;
+      height: calc(100vh - 56px);
+      overflow-y: auto;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .sidebar-item svg { width: 22px; height: 22px; fill: currentColor; }
+    .sidebar-item:hover, .sidebar-item.active { background: var(--surface); }
+    .sidebar-divider { height: 1px; background: var(--border); margin: 8px 0; }
+
+    /* Main Content */
     main {
       flex: 1;
-      width: 100%;
-      max-width: 1440px;
-      margin: 0 auto;
-      padding: 32px;
-    }
-
-    .back-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: #18181b;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      font-size: 13.5px;
-      font-weight: 600;
-      padding: 8px 18px;
-      border-radius: 9999px;
-      cursor: pointer;
-      margin-bottom: 24px;
-      transition: all 0.2s;
-    }
-    .back-btn svg { width: 15px; height: 15px; }
-    .back-btn:hover {
-      background: #27272a;
-      color: var(--text);
-      transform: translateX(-2px);
-    }
-
-    /* ---------------------------------------------
-       CREATOR SPOTLIGHT CARD (SEARCH)
-    --------------------------------------------- */
-    .creator-spotlight {
-      background: linear-gradient(180deg, #18181c 0%, #121215 100%);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
       padding: 24px;
-      margin-bottom: 32px;
+      background: var(--bg);
+      overflow-y: auto;
+    }
+
+    /* Category Chips */
+    .chips-bar {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
+      gap: 12px;
+      margin-bottom: 24px;
+      overflow-x: auto;
+      padding-bottom: 4px;
     }
-
-    .spotlight-left {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .spotlight-avatar {
-      width: 76px;
-      height: 76px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid var(--border);
-      background: #27272a;
-    }
-
-    .spotlight-meta h2 {
-      font-size: 19px;
-      font-weight: 700;
-      margin-bottom: 4px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .spotlight-meta p {
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.4;
-      max-width: 580px;
-    }
-
-    .spotlight-btn {
-      background: #fafafa;
-      color: #09090b;
+    .chips-bar::-webkit-scrollbar { display: none; }
+    .chip {
+      background: var(--surface);
       border: none;
-      padding: 10px 22px;
-      border-radius: 20px;
-      font-size: 13.5px;
-      font-weight: 600;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
       cursor: pointer;
       white-space: nowrap;
-      transition: opacity 0.15s;
     }
-    .spotlight-btn:hover { opacity: 0.9; }
+    .chip:hover { background: var(--surface-hover); }
+    .chip.active { background: #f1f1f1; color: #0f0f0f; }
 
-    /* ---------------------------------------------
-       GRID CARDS
-    --------------------------------------------- */
+    /* Video Feed Grid */
     .video-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 40px 16px;
     }
 
     .video-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      cursor: pointer;
       display: flex;
       flex-direction: column;
-      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s;
-    }
-    .video-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
-      border-color: var(--border-focus);
+      gap: 12px;
+      cursor: pointer;
     }
 
-    .thumb-wrap {
+    .thumbnail-box {
       position: relative;
       width: 100%;
       aspect-ratio: 16 / 9;
-      background: #1c1c21;
+      background: #222;
+      border-radius: 12px;
       overflow: hidden;
     }
+    .thumbnail-box img { width: 100%; height: 100%; object-fit: cover; transition: border-radius 0.2s; }
+    .video-card:hover .thumbnail-box img { border-radius: 0; }
 
-    .thumb-wrap img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s ease;
-    }
-    .video-card:hover .thumb-wrap img {
-      transform: scale(1.03);
-    }
-
-    .card-meta {
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .card-title {
-      font-size: 14.5px;
-      font-weight: 600;
-      line-height: 1.4;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      color: var(--text);
-    }
-
-    .card-channel {
-      font-size: 13px;
-      color: var(--text-muted);
-      font-weight: 500;
-      width: fit-content;
-    }
-    .card-channel:hover {
-      color: #fff;
-      text-decoration: underline;
-    }
+    .video-meta-row { display: flex; gap: 12px; }
+    .card-channel-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #333; flex-shrink: 0; }
+    .card-info { display: flex; flex-direction: column; gap: 4px; }
+    .card-title { font-size: 15px; font-weight: 500; line-height: 1.4; color: #fff; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-channel-name { font-size: 13px; color: var(--text-muted); }
+    .card-channel-name:hover { color: #fff; }
 
     /* ---------------------------------------------
-       THEATER PLAYER & ORGANIZED COMMENTS
+       THEATER WATCH VIEW
     --------------------------------------------- */
-    .player-layout {
+    .watch-layout {
       display: none;
       grid-template-columns: 1fr 400px;
-      gap: 32px;
+      gap: 24px;
       align-items: start;
     }
+    @media (max-width: 1100px) { .watch-layout { grid-template-columns: 1fr; } }
 
-    @media (max-width: 1080px) {
-      .player-layout { grid-template-columns: 1fr; }
-    }
-
-    .theater-frame {
+    .watch-main { display: flex; flex-direction: column; gap: 14px; }
+    .player-container {
       position: relative;
       width: 100%;
       padding-bottom: 56.25%;
-      border-radius: var(--radius);
+      border-radius: 12px;
       overflow: hidden;
       background: #000;
-      border: 1px solid var(--border);
     }
+    .player-container iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
 
-    .theater-frame iframe {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
+    .watch-title { font-size: 20px; font-weight: 700; line-height: 1.4; }
 
-    .theater-details {
-      margin-top: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .theater-title {
-      font-size: 21px;
-      font-weight: 700;
-      line-height: 1.35;
-    }
-
-    .channel-badge {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 12px 16px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      width: fit-content;
-      cursor: pointer;
-    }
-    .channel-badge:hover { background: var(--card-hover); }
-
-    .channel-badge img {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      object-fit: cover;
-      background: #27272a;
-    }
-
-    .channel-badge-info h4 { font-size: 14.5px; font-weight: 600; }
-    .channel-badge-info p { font-size: 12px; color: var(--text-muted); }
-
-    /* Polished Comment Section Box */
-    .comments-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      display: flex;
-      flex-direction: column;
-      height: 720px;
-      overflow: hidden;
-    }
-
-    .comments-card-header {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border);
+    .watch-toolbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
     }
 
-    .comments-card-header h3 {
-      font-size: 15px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .channel-row { display: flex; align-items: center; gap: 14px; cursor: pointer; }
+    .channel-row img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+    .channel-text h4 { font-size: 16px; font-weight: 500; }
+    .channel-text p { font-size: 12px; color: var(--text-muted); }
 
-    .live-indicator {
+    .toolbar-buttons { display: flex; align-items: center; gap: 8px; }
+    .yt-btn {
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 11px;
-      font-weight: 600;
-      color: #22c55e;
-      background: rgba(34, 197, 94, 0.1);
-      padding: 4px 8px;
-      border-radius: 9999px;
+      background: var(--surface);
+      border: none;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
     }
+    .yt-btn svg { width: 18px; height: 18px; fill: currentColor; }
+    .yt-btn:hover { background: var(--surface-hover); }
 
-    .live-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #22c55e;
-      animation: pulse 1.8s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
-    }
-
-    /* Comment Form */
-    .comment-input-area {
-      padding: 14px 20px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      background: rgba(255,255,255,0.01);
-    }
-
-    .user-avatar-mini {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: #3f3f46;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .comment-form {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .comment-form input {
+    /* Comment Section */
+    .comments-section { display: flex; flex-direction: column; gap: 18px; margin-top: 8px; }
+    .comments-header { font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 24px; }
+    
+    .comment-composer { display: flex; gap: 16px; align-items: flex-start; }
+    .comment-composer input {
       width: 100%;
       background: none;
       border: none;
       border-bottom: 1px solid var(--border);
       padding: 6px 0;
       color: #fff;
-      font-size: 13.5px;
+      font-size: 14px;
       outline: none;
-      transition: border-color 0.2s;
     }
-    .comment-form input:focus { border-bottom-color: var(--text); }
+    .comment-composer input:focus { border-bottom-color: #fff; }
 
-    .comment-form-actions {
-      display: flex;
-      justify-content: flex-end;
-    }
+    .comments-list { display: flex; flex-direction: column; gap: 20px; }
+    .comment-item { display: flex; gap: 16px; font-size: 14px; }
+    .comment-item img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+    .comment-content { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+    .comment-author-line { display: flex; gap: 8px; align-items: center; }
+    .comment-author { font-size: 13px; font-weight: 500; color: #fff; }
+    .comment-time { font-size: 12px; color: var(--text-muted); }
+    .comment-text { color: #f1f1f1; line-height: 1.4; }
 
-    .comment-submit-btn {
-      background: #27272a;
-      color: #fff;
-      border: none;
-      padding: 6px 14px;
-      border-radius: 14px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .comment-submit-btn:hover { background: #3f3f46; }
-
-    /* Comment Item List */
-    .comments-scroll-list {
-      flex: 1;
-      padding: 16px 20px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-
-    .comment-row {
-      display: flex;
-      gap: 12px;
-      font-size: 13px;
-    }
-
-    .comment-row img {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      object-fit: cover;
-      flex-shrink: 0;
-      background: #27272a;
-    }
-
-    .comment-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .comment-user-line {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .comment-author {
-      font-size: 12.5px;
-      font-weight: 600;
-      color: var(--text);
-    }
-
-    .comment-time {
-      font-size: 11.5px;
-      color: var(--text-muted);
-    }
-
-    .comment-text {
-      color: #e4e4e7;
-      line-height: 1.45;
-      font-size: 13px;
-      word-break: break-word;
-    }
-
-    .comment-actions-bar {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-top: 4px;
-      color: var(--text-muted);
-      font-size: 11.5px;
-    }
-    .comment-actions-bar span { cursor: pointer; display: flex; align-items: center; gap: 4px; }
-    .comment-actions-bar span:hover { color: #fff; }
-
-    /* ---------------------------------------------
-       SHORTS VIEWPORT & DRAWER
-    --------------------------------------------- */
-    .shorts-viewport {
+    /* Shorts Viewport */
+    .shorts-layout {
       display: none;
-      height: calc(100vh - var(--header-h) - 48px);
-      max-width: 440px;
+      height: calc(100vh - 80px);
+      max-width: 400px;
       margin: 0 auto;
       overflow-y: scroll;
       scroll-snap-type: y mandatory;
       scrollbar-width: none;
-      border-radius: 20px;
-      border: 1px solid var(--border);
+      border-radius: 16px;
       background: #000;
     }
-    .shorts-viewport::-webkit-scrollbar { display: none; }
+    .shorts-layout::-webkit-scrollbar { display: none; }
+    .short-slot { height: 100%; width: 100%; scroll-snap-align: start; position: relative; background: #000; }
+    .short-slot iframe { width: 100% !important; height: 100% !important; border: none; }
 
-    .short-slot {
-      height: 100%;
-      width: 100%;
-      scroll-snap-align: start;
-      scroll-snap-stop: always;
-      position: relative;
-      overflow: hidden;
-      background: #000;
-    }
+    /* Channel Profile */
+    .channel-layout { display: none; flex-direction: column; gap: 24px; }
+    .channel-banner { width: 100%; height: 200px; object-fit: cover; border-radius: 12px; background: #222; display: none; }
+    .channel-header-bar { display: flex; align-items: center; gap: 24px; }
+    .channel-header-bar img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; }
 
-    .short-iframe-wrap { width: 100%; height: 100%; }
-    .short-iframe-wrap iframe { width: 100% !important; height: 100% !important; border: none; }
-
-    .short-glass-overlay {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      padding: 24px 18px;
-      background: linear-gradient(0deg, rgba(9,9,11,0.95) 0%, rgba(9,9,11,0.4) 30%, transparent 60%);
-    }
-
-    .short-info { max-width: 76%; pointer-events: auto; }
-    .short-info .author-tag {
-      display: inline-block;
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 6px;
-      cursor: pointer;
-      color: #fff;
-    }
-    .short-info .author-tag:hover { text-decoration: underline; }
-
-    .short-info .caption {
-      font-size: 13px;
-      color: #d4d4d8;
-      line-height: 1.4;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .short-rail {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      pointer-events: auto;
-      align-items: center;
-    }
-
-    .rail-btn {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: rgba(39, 39, 42, 0.7);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      gap: 2px;
-      transition: all 0.2s ease;
-    }
-    .rail-btn:hover {
-      background: rgba(63, 63, 70, 0.9);
-      transform: scale(1.05);
-    }
-    .rail-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; }
-    .rail-btn span { font-size: 10px; font-weight: 600; color: #d4d4d8; }
-
-    /* Shorts Drawer */
-    .drawer {
-      position: fixed;
-      bottom: -100%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      max-width: 440px;
-      height: 64%;
-      background: #121215;
-      border: 1px solid var(--border);
-      border-bottom: none;
-      border-radius: 20px 20px 0 0;
-      transition: bottom 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-      z-index: 200;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.8);
-    }
-    .drawer.open { bottom: 0; }
-
-    .drawer-top {
-      padding: 16px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border);
-    }
-    .drawer-top h4 { font-size: 15px; font-weight: 700; }
-    .close-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; }
-    .close-btn svg { width: 20px; height: 20px; }
-
-    /* ---------------------------------------------
-       CHANNEL PROFILE VIEW
-    --------------------------------------------- */
-    .channel-layout {
-      display: none;
-      flex-direction: column;
-      gap: 28px;
-    }
-
-    .channel-hero {
-      position: relative;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
-
-    .hero-banner {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      background: #18181b;
-      display: none;
-    }
-
-    .hero-bar {
-      padding: 24px;
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .hero-bar img {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      border: 3px solid #18181b;
-      object-fit: cover;
-      background: #27272a;
-    }
-
-    .hero-meta h2 {
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      margin-bottom: 4px;
-    }
-
-    .hero-meta p {
-      font-size: 13.5px;
-      color: var(--text-muted);
-      font-weight: 500;
-    }
-
-    .feedback-state {
-      text-align: center;
-      padding: 60px 0;
-      color: var(--text-muted);
-      font-size: 14px;
-      font-weight: 500;
-    }
+    .status-msg { text-align: center; padding: 60px; color: var(--text-muted); font-size: 15px; }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
+  <!-- Top Navigation Header -->
   <header>
-    <div class="brand-group">
-      <div class="logo" onclick="app.showFeed()">
-        <div class="logo-icon">
-          <svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+    <div class="header-left">
+      <a class="logo" onclick="app.showFeed()">
+        <div class="logo-box">
+          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
         </div>
-        VideoHub
-      </div>
-
-      <nav class="nav-tabs">
-        <button id="tabVideos" class="nav-tab active" onclick="app.showFeed()">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect width="20" height="15" x="2" y="4.5" rx="2"></rect><polygon points="10 9 15 12 10 15 10 9"></polygon></svg>
-          Videos
-        </button>
-        <button id="tabShorts" class="nav-tab" onclick="app.showShorts()">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-          Shorts
-        </button>
-      </nav>
+        StreamHub
+      </a>
     </div>
 
-    <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="Search creators, topics, or videos..." onkeydown="if(event.key==='Enter') app.search()" />
-      <button class="search-btn" onclick="app.search()" aria-label="Search">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+    <div class="header-center">
+      <div class="search-form">
+        <input type="text" id="searchInput" placeholder="Search" onkeydown="if(event.key==='Enter') app.searchVideos()" />
+      </div>
+      <button class="search-submit" onclick="app.searchVideos()">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
       </button>
+    </div>
+
+    <div class="header-right">
+      <div class="user-avatar">U</div>
     </div>
   </header>
 
-  <main>
-    <!-- Back Button -->
-    <button id="backNav" class="back-btn" style="display: none;" onclick="app.goBack()">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
-      Back
-    </button>
+  <div class="app-body">
+    <!-- Sidebar Navigation -->
+    <sidebar>
+      <a class="sidebar-item active" onclick="app.showFeed()">
+        <svg viewBox="0 0 24 24"><path d="M4 21V10.08l8-6.92 8 6.92V21h-5v-6h-6v6H4z"/></svg>
+        Home
+      </a>
+      <a class="sidebar-item" onclick="app.showShorts()">
+        <svg viewBox="0 0 24 24"><path d="M10 14.65v-5.3L15 12l-5 2.65zm7.77-4.33c-.77-.32-1.2-.5-1.2-.5L18 9.06c1.84-.96 2.53-3.23 1.56-5.07s-3.23-2.53-5.07-1.56L6 6.54C4.38 7.37 3.4 9.1 3.5 10.93c.1 1.83 1.25 3.39 3 4.05.74.28 1.45.42 1.45.42l-.84 1.25c-1.35 2.02-.75 4.75 1.33 5.92.56.31 1.18.46 1.79.46 1.45 0 2.84-.75 3.62-2.02l4.63-7.53c.69-1.12.51-2.58-.41-3.48z"/></svg>
+        Shorts
+      </a>
+    </sidebar>
 
-    <!-- Main Feed / Search Section -->
-    <section id="feedSection">
-      <!-- Injected Creator Spotlight -->
-      <div id="creatorSpotlightContainer"></div>
-      <div id="feedGrid" class="video-grid"></div>
-    </section>
-
-    <!-- Theater Video Player Layout -->
-    <section id="theaterSection" class="player-layout">
-      <div class="theater-main">
-        <div class="theater-frame">
-          <iframe id="videoIframe" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+    <!-- Main Content Area -->
+    <main>
+      <!-- Feed View -->
+      <div id="feedView">
+        <div class="chips-bar">
+          <button class="chip active" onclick="app.filterCategory('All')">All</button>
+          <button class="chip" onclick="app.filterCategory('Gaming')">Gaming</button>
+          <button class="chip" onclick="app.filterCategory('Music')">Music</button>
+          <button class="chip" onclick="app.filterCategory('Tech')">Tech</button>
         </div>
-        <div class="theater-details">
-          <h1 id="playerTitle" class="theater-title">Loading...</h1>
-          <div id="playerChannelRow" class="channel-badge">
-            <img id="playerChannelAvatar" src="" alt="Creator" />
-            <div class="channel-badge-info">
-              <h4 id="playerChannelName">...</h4>
-              <p id="playerSubscriberCount">...</p>
-            </div>
-          </div>
-        </div>
+        <div id="videoGrid" class="video-grid"></div>
       </div>
 
-      <!-- Live Comment Section -->
-      <aside class="comments-card">
-        <div class="comments-card-header">
-          <h3>
-            Comments
-            <span id="commentCountBadge" style="font-size:12px;color:var(--text-muted);font-weight:500;"></span>
-          </h3>
-          <div class="live-indicator">
-            <span class="live-dot"></span> Live
+      <!-- Watch / Player View -->
+      <div id="watchView" class="watch-layout">
+        <div class="watch-main">
+          <div class="player-container">
+            <iframe id="videoIframe" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+          </div>
+          <h1 id="watchTitle" class="watch-title">...</h1>
+
+          <div class="watch-toolbar">
+            <div id="watchChannelRow" class="channel-row">
+              <img id="watchChannelAvatar" src="" alt="" />
+              <div class="channel-text">
+                <h4 id="watchChannelName">...</h4>
+                <p id="watchSubCount">...</p>
+              </div>
+            </div>
+            <div class="toolbar-buttons">
+              <button class="yt-btn" type="button">
+                <svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>
+                <span id="watchLikeCount">Like</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Comments Section -->
+          <div class="comments-section">
+            <div class="comments-header"><span id="commentCountHeader">Comments</span></div>
+            <div class="comment-composer">
+              <div class="user-avatar">U</div>
+              <input type="text" id="commentInput" placeholder="Add a comment..." onkeydown="if(event.key==='Enter') app.postComment()" />
+            </div>
+            <div id="commentsList" class="comments-list"></div>
           </div>
         </div>
+        <div></div>
+      </div>
 
-        <!-- Add Comment Form -->
-        <div class="comment-input-area">
-          <div class="user-avatar-mini">Y</div>
-          <form class="comment-form" onsubmit="event.preventDefault(); app.submitLocalComment();">
-            <input type="text" id="commentInputField" placeholder="Add a comment..." />
-            <div class="comment-form-actions">
-              <button type="submit" class="comment-submit-btn">Comment</button>
-            </div>
-          </form>
-        </div>
+      <!-- Shorts Vertical Feed -->
+      <div id="shortsView" class="shorts-layout"></div>
 
-        <div id="commentsList" class="comments-scroll-list"></div>
-      </aside>
-    </section>
-
-    <!-- Shorts Viewport -->
-    <section id="shortsSection" class="shorts-viewport"></section>
-
-    <!-- Channel Profile View -->
-    <section id="channelSection" class="channel-layout">
-      <div class="channel-hero">
-        <img id="channelBanner" class="hero-banner" alt="Banner" />
-        <div class="hero-bar">
+      <!-- Channel Profile View -->
+      <div id="channelView" class="channel-layout">
+        <img id="channelBanner" class="channel-banner" alt="Banner" />
+        <div class="channel-header-bar">
           <img id="channelAvatar" alt="Avatar" />
-          <div class="hero-meta">
-            <h2 id="channelTitle">...</h2>
-            <p id="channelStats">...</p>
+          <div>
+            <h2 id="channelName">...</h2>
+            <p id="channelMeta" style="color:var(--text-muted);font-size:13px;"></p>
           </div>
         </div>
+        <div id="channelGrid" class="video-grid"></div>
       </div>
-      <h3 style="font-size: 18px; font-weight: 700;">Uploads</h3>
-      <div id="channelVideosGrid" class="video-grid"></div>
-    </section>
 
-    <!-- Status Feedback -->
-    <div id="statusMsg" class="feedback-state">Loading...</div>
-  </main>
-
-  <!-- Shorts Drawer Sheet -->
-  <div class="drawer" id="shortsDrawer">
-    <div class="drawer-top">
-      <h4>Comments</h4>
-      <button class="close-btn" onclick="app.closeShortsDrawer()">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-      </button>
-    </div>
-    
-    <div class="comment-input-area">
-      <div class="user-avatar-mini">Y</div>
-      <form class="comment-form" onsubmit="event.preventDefault(); app.submitShortsComment();">
-        <input type="text" id="shortsCommentInput" placeholder="Add a comment..." />
-        <div class="comment-form-actions">
-          <button type="submit" class="comment-submit-btn">Comment</button>
-        </div>
-      </form>
-    </div>
-
-    <div class="comments-scroll-list" id="shortsDrawerComments"></div>
+      <div id="statusMsg" class="status-msg">Loading...</div>
+    </main>
   </div>
 
   <script src="https://www.youtube.com/iframe_api"></script>
@@ -902,525 +470,240 @@
   <script>
     const CONFIG = {
       API_KEY: 'AIzaSyDCZpIEH3_aWEjVTR0tv7ZHtgGDhZssjyI',
-      BASE_URL: 'https://www.googleapis.com/youtube/v3',
-      COMMENT_POLL_INTERVAL: 25000 // 25 seconds
+      BASE_URL: 'https://www.googleapis.com/youtube/v3'
     };
 
-    const utils = {
-      formatCount(num) {
+    const helpers = {
+      format(num) {
         if (!num) return '0';
         const n = parseInt(num, 10);
         if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
         if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
         return n.toLocaleString();
-      },
-      timeAgo(dateString) {
-        const date = new Date(dateString);
-        const seconds = Math.floor((new Date() - date) / 1000);
-        if (seconds < 60) return 'just now';
-        const minutes = Math.floor(seconds / 60);
-        if (minutes < 60) return `${minutes}m ago`;
-        const hours = Math.floor(minutes / 60);
-        if (hours < 24) return `${hours}h ago`;
-        const days = Math.floor(hours / 24);
-        if (days < 30) return `${days}d ago`;
-        const months = Math.floor(days / 30);
-        if (months < 12) return `${months}mo ago`;
-        return `${Math.floor(months / 12)}y ago`;
       }
     };
 
-    class VideoHubApp {
+    class StreamHubApp {
       constructor() {
-        this.currentView = 'feed';
-        this.prevView = 'feed';
         this.activeVideoId = null;
-        this.activeShortsVideoId = null;
-        this.commentPollTimer = null;
-        this.localComments = new Map(); // stores local user comments by videoId
+        this.localComments = new Map();
         this.shortsPlayers = new Map();
-        this.shortsObserver = null;
         this.init();
       }
 
       init() {
-        this.loadPopularFeed();
+        this.loadFeed('gaming');
       }
 
       setStatus(msg) {
         const el = document.getElementById('statusMsg');
-        if (msg) {
-          el.textContent = msg;
-          el.style.display = 'block';
-        } else {
-          el.style.display = 'none';
-        }
+        if (msg) { el.textContent = msg; el.style.display = 'block'; }
+        else { el.style.display = 'none'; }
       }
 
       setView(view) {
-        this.prevView = this.currentView;
-        this.currentView = view;
-
-        // Clear comment live-poller if leaving player views
-        if (view !== 'theater' && !document.getElementById('shortsDrawer').classList.contains('open')) {
-          this.stopCommentPolling();
-        }
-
-        document.getElementById('feedSection').style.display = view === 'feed' ? 'block' : 'none';
-        document.getElementById('theaterSection').style.display = view === 'theater' ? 'grid' : 'none';
-        document.getElementById('shortsSection').style.display = view === 'shorts' ? 'block' : 'none';
-        document.getElementById('channelSection').style.display = view === 'channel' ? 'flex' : 'none';
-        document.getElementById('backNav').style.display = (view === 'theater' || view === 'channel') ? 'inline-flex' : 'none';
-
-        document.getElementById('tabVideos').classList.toggle('active', view === 'feed');
-        document.getElementById('tabShorts').classList.toggle('active', view === 'shorts');
-
-        if (view !== 'theater') {
-          document.getElementById('videoIframe').src = '';
-        }
-
-        if (view !== 'shorts') {
-          this.shortsPlayers.forEach(p => {
-            if (p && typeof p.pauseVideo === 'function') p.pauseVideo();
-          });
-        }
-
-        this.setStatus(null);
+        document.getElementById('feedView').style.display = view === 'feed' ? 'block' : 'none';
+        document.getElementById('watchView').style.display = view === 'watch' ? 'grid' : 'none';
+        document.getElementById('shortsView').style.display = view === 'shorts' ? 'block' : 'none';
+        document.getElementById('channelView').style.display = view === 'channel' ? 'flex' : 'none';
+        if (view !== 'watch') document.getElementById('videoIframe').src = '';
         window.scrollTo(0, 0);
       }
 
-      goBack() {
-        if (this.prevView === 'shorts') {
-          this.showShorts();
-        } else {
-          this.showFeed();
-        }
-      }
+      showFeed() { this.setView('feed'); }
 
-      showFeed() {
+      async loadFeed(query) {
+        this.setStatus('Loading videos...');
         this.setView('feed');
-        if (!document.getElementById('feedGrid').children.length) {
-          this.loadPopularFeed();
-        }
-      }
-
-      // --- FEED & CREATOR SEARCH ---
-      async loadPopularFeed() {
-        this.setStatus('Discovering trending videos...');
-        document.getElementById('creatorSpotlightContainer').innerHTML = '';
-        this.setView('feed');
-
         try {
-          const res = await fetch(`${CONFIG.BASE_URL}/videos?part=snippet,statistics&chart=mostPopular&regionCode=US&maxResults=24&key=${CONFIG.API_KEY}`);
+          const res = await fetch(`${CONFIG.BASE_URL}/search?part=snippet&type=video&maxResults=24&q=${encodeURIComponent(query)}&key=${CONFIG.API_KEY}`);
           const data = await res.json();
-          if (!data.items) throw new Error(data.error?.message || 'Failed to fetch items');
-          this.renderCards(data.items.map(item => ({
-            id: item.id,
-            channelId: item.snippet.channelId,
-            title: item.snippet.title,
-            thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.default?.url,
-            uploader: item.snippet.channelTitle
-          })), 'feedGrid');
-        } catch (err) {
-          this.setStatus(`Error loading feed: ${err.message}`);
-        }
-      }
+          if (!data.items) throw new Error('API limit or error');
+          
+          // Fetch channel avatars in batch
+          const channelIds = [...new Set(data.items.map(i => i.snippet.channelId))].join(',');
+          const chRes = await fetch(`${CONFIG.BASE_URL}/channels?part=snippet&id=${channelIds}&key=${CONFIG.API_KEY}`);
+          const chData = await chRes.json();
+          const avatarMap = new Map();
+          chData.items?.forEach(c => avatarMap.set(c.id, c.snippet.thumbnails.default.url));
 
-      async search() {
-        const query = document.getElementById('searchInput').value.trim();
-        if (!query) return;
-
-        this.setStatus(`Searching for "${query}"...`);
-        this.setView('feed');
-        document.getElementById('creatorSpotlightContainer').innerHTML = '';
-
-        try {
-          // Query both channels and videos
-          const res = await fetch(`${CONFIG.BASE_URL}/search?part=snippet&type=video,channel&maxResults=24&q=${encodeURIComponent(query)}&key=${CONFIG.API_KEY}`);
-          const data = await res.json();
-          if (!data.items) throw new Error('Search request failed');
-
-          // Check if top result or any item is a creator channel
-          const matchedChannel = data.items.find(i => i.id.kind === 'youtube#channel');
-          if (matchedChannel) {
-            this.fetchAndRenderCreatorSpotlight(matchedChannel.id.channelId);
-          }
-
-          // Filter standard video results
-          const videoItems = data.items.filter(i => i.id.kind === 'youtube#video');
-          this.renderCards(videoItems.map(item => ({
-            id: item.id.videoId,
-            channelId: item.snippet.channelId,
-            title: item.snippet.title,
-            thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.default?.url,
-            uploader: item.snippet.channelTitle
-          })), 'feedGrid');
-        } catch (err) {
-          this.setStatus(`Search failed: ${err.message}`);
-        }
-      }
-
-      async fetchAndRenderCreatorSpotlight(channelId) {
-        try {
-          const res = await fetch(`${CONFIG.BASE_URL}/channels?part=snippet,statistics&id=${channelId}&key=${CONFIG.API_KEY}`);
-          const data = await res.json();
-          if (!data.items?.[0]) return;
-
-          const ch = data.items[0];
-          const container = document.getElementById('creatorSpotlightContainer');
-          container.innerHTML = `
-            <div class="creator-spotlight">
-              <div class="spotlight-left">
-                <img class="spotlight-avatar" src="${ch.snippet.thumbnails.medium?.url || ch.snippet.thumbnails.default?.url}" alt="${ch.snippet.title}" />
-                <div class="spotlight-meta">
-                  <h2>${ch.snippet.title}</h2>
-                  <p>${utils.formatCount(ch.statistics.subscriberCount)} subscribers • ${utils.formatCount(ch.statistics.videoCount)} videos</p>
-                  <p style="margin-top:4px;color:#d4d4d8;">${ch.snippet.description || 'Visit channel profile to view full video catalog.'}</p>
-                </div>
-              </div>
-              <button class="spotlight-btn" onclick="app.loadChannel('${ch.id}')">View Channel</button>
-            </div>
-          `;
+          this.renderGrid(data.items.map(i => ({
+            id: i.id.videoId,
+            channelId: i.snippet.channelId,
+            title: i.snippet.title,
+            thumb: i.snippet.thumbnails.high?.url || i.snippet.thumbnails.default?.url,
+            channel: i.snippet.channelTitle,
+            avatar: avatarMap.get(i.snippet.channelId) || ''
+          })), 'videoGrid');
         } catch (e) {
-          console.warn('Could not load channel spotlight', e);
+          this.setStatus(`Error: ${e.message}`);
         }
       }
 
-      renderCards(items, targetId) {
-        const container = document.getElementById(targetId);
-        container.innerHTML = '';
-        this.setStatus(null);
+      filterCategory(cat) {
+        document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.textContent === cat));
+        this.loadFeed(cat === 'All' ? 'trending' : cat);
+      }
 
-        if (!items.length) {
-          this.setStatus('No videos found.');
-          return;
-        }
+      async searchVideos() {
+        const q = document.getElementById('searchInput').value.trim();
+        if (q) this.loadFeed(q);
+      }
+
+      renderGrid(items, targetId) {
+        const grid = document.getElementById(targetId);
+        grid.innerHTML = '';
+        this.setStatus(null);
 
         items.forEach(item => {
           if (!item.id) return;
-          const card = document.createElement('article');
+          const card = document.createElement('div');
           card.className = 'video-card';
           card.innerHTML = `
-            <div class="thumb-wrap">
-              <img src="${item.thumbnail}" alt="${item.title}" loading="lazy" />
-            </div>
-            <div class="card-meta">
-              <h3 class="card-title">${item.title}</h3>
-              <span class="card-channel">${item.uploader}</span>
+            <div class="thumbnail-box"><img src="${item.thumb}" loading="lazy" /></div>
+            <div class="video-meta-row">
+              <img class="card-channel-avatar" src="${item.avatar}" />
+              <div class="card-info">
+                <div class="card-title">${item.title}</div>
+                <div class="card-channel-name">${item.channel}</div>
+              </div>
             </div>
           `;
-
           card.onclick = (e) => {
-            if (e.target.classList.contains('card-channel')) {
-              this.loadChannel(item.channelId);
-            } else {
-              this.playVideo(item.id, item.title, item.channelId, item.uploader);
-            }
+            if (e.target.classList.contains('card-channel-name')) this.loadChannel(item.channelId);
+            else this.watchVideo(item.id, item.title, item.channelId, item.channel, item.avatar);
           };
-          container.appendChild(card);
+          grid.appendChild(card);
         });
       }
 
-      // --- THEATER PLAYER ---
-      async playVideo(id, title, channelId, channelTitle) {
+      async watchVideo(id, title, channelId, channelName, avatarUrl) {
         this.activeVideoId = id;
-        this.setView('theater');
+        this.setView('watch');
 
         document.getElementById('videoIframe').src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1`;
-        document.getElementById('playerTitle').textContent = title;
-        document.getElementById('playerChannelName').textContent = channelTitle;
-        document.getElementById('playerSubscriberCount').textContent = 'Loading subscriber count...';
-        document.getElementById('playerChannelAvatar').src = '';
-        document.getElementById('commentInputField').value = '';
+        document.getElementById('watchTitle').textContent = title;
+        document.getElementById('watchChannelName').textContent = channelName;
+        document.getElementById('watchChannelAvatar').src = avatarUrl;
+        document.getElementById('watchSubCount').textContent = '...';
+        document.getElementById('watchLikeCount').textContent = 'Like';
+        document.getElementById('commentInput').value = '';
 
-        document.getElementById('playerChannelRow').onclick = () => this.loadChannel(channelId);
-
-        try {
-          const res = await fetch(`${CONFIG.BASE_URL}/channels?part=snippet,statistics&id=${channelId}&key=${CONFIG.API_KEY}`);
-          const data = await res.json();
-          if (data.items?.[0]) {
-            const ch = data.items[0];
-            document.getElementById('playerChannelAvatar').src = ch.snippet.thumbnails.default.url;
-            document.getElementById('playerSubscriberCount').textContent = `${utils.formatCount(ch.statistics.subscriberCount)} subscribers`;
-          }
-        } catch (err) {
-          console.warn('Channel stats unavailable');
-        }
-
-        this.refreshComments(id, 'commentsList');
-        this.startCommentPolling(id, 'commentsList');
-      }
-
-      // --- LIVE COMMENTS SYSTEM ---
-      startCommentPolling(videoId, containerId) {
-        this.stopCommentPolling();
-        this.commentPollTimer = setInterval(() => {
-          this.refreshComments(videoId, containerId, true);
-        }, CONFIG.COMMENT_POLL_INTERVAL);
-      }
-
-      stopCommentPolling() {
-        if (this.commentPollTimer) {
-          clearInterval(this.commentPollTimer);
-          this.commentPollTimer = null;
-        }
-      }
-
-      async refreshComments(videoId, targetId, isPolling = false) {
-        const target = document.getElementById(targetId);
-        if (!isPolling) {
-          target.innerHTML = '<p class="feedback-state">Loading conversation...</p>';
-        }
+        document.getElementById('watchChannelRow').onclick = () => this.loadChannel(channelId);
 
         try {
-          const res = await fetch(`${CONFIG.BASE_URL}/commentThreads?part=snippet&videoId=${videoId}&maxResults=25&key=${CONFIG.API_KEY}`);
+          const res = await fetch(`${CONFIG.BASE_URL}/videos?part=statistics&id=${id}&key=${CONFIG.API_KEY}`);
           const data = await res.json();
+          if (data.items?.[0]) document.getElementById('watchLikeCount').textContent = helpers.format(data.items[0].statistics.likeCount);
 
-          if (!data.items?.length && (!this.localComments.has(videoId) || this.localComments.get(videoId).length === 0)) {
-            target.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:24px 0;text-align:center;">Comments are turned off or none exist.</p>';
-            return;
-          }
+          const chRes = await fetch(`${CONFIG.BASE_URL}/channels?part=statistics&id=${channelId}&key=${CONFIG.API_KEY}`);
+          const chData = await chRes.json();
+          if (chData.items?.[0]) document.getElementById('watchSubCount').textContent = `${helpers.format(chData.items[0].statistics.subscriberCount)} subscribers`;
+        } catch (e) {}
 
-          // Fetch local mock comments saved for this video
-          const userComments = this.localComments.get(videoId) || [];
+        this.loadComments(id);
+      }
 
-          // Merge local posts at top + API comments
-          const apiComments = (data.items || []).map(item => {
-            const c = item.snippet.topLevelComment.snippet;
-            return {
-              author: c.authorDisplayName,
-              avatar: c.authorProfileImageUrl,
-              text: c.textDisplay,
-              publishedAt: c.publishedAt,
-              likeCount: c.likeCount || 0
-            };
+      async loadComments(videoId) {
+        const list = document.getElementById('commentsList');
+        list.innerHTML = '<p style="color:var(--text-muted)">Loading comments...</p>';
+
+        try {
+          const res = await fetch(`${CONFIG.BASE_URL}/commentThreads?part=snippet&videoId=${videoId}&maxResults=20&key=${CONFIG.API_KEY}`);
+          const data = await res.json();
+          
+          const local = this.localComments.get(videoId) || [];
+          const api = (data.items || []).map(i => {
+            const c = i.snippet.topLevelComment.snippet;
+            return { author: c.authorDisplayName, avatar: c.authorProfileImageUrl, text: c.textDisplay };
           });
 
-          const merged = [...userComments, ...apiComments];
+          const combined = [...local, ...api];
+          document.getElementById('commentCountHeader').textContent = `${combined.length} Comments`;
 
-          target.innerHTML = merged.map(c => `
-            <div class="comment-row">
-              <img src="${c.avatar}" alt="${c.author}" />
+          list.innerHTML = combined.map(c => `
+            <div class="comment-item">
+              <img src="${c.avatar}" />
               <div class="comment-content">
-                <div class="comment-user-line">
-                  <span class="comment-author">${c.author}</span>
-                  <span class="comment-time">${utils.timeAgo(c.publishedAt)}</span>
-                </div>
+                <div class="comment-author-line"><span class="comment-author">@${c.author}</span></div>
                 <div class="comment-text">${c.text}</div>
-                <div class="comment-actions-bar">
-                  <span>👍 ${c.likeCount > 0 ? utils.formatCount(c.likeCount) : ''}</span>
-                  <span>Reply</span>
-                </div>
               </div>
             </div>
           `).join('');
-
-          const countBadge = document.getElementById('commentCountBadge');
-          if (countBadge && targetId === 'commentsList') {
-            countBadge.textContent = `(${merged.length})`;
-          }
-
-        } catch (err) {
-          if (!isPolling) {
-            target.innerHTML = '<p style="color:var(--text-muted);font-size:13px;text-align:center;">Comments could not be retrieved.</p>';
-          }
+        } catch (e) {
+          list.innerHTML = '<p style="color:var(--text-muted)">Comments unavailable.</p>';
         }
       }
 
-      submitLocalComment() {
-        const input = document.getElementById('commentInputField');
+      postComment() {
+        const input = document.getElementById('commentInput');
         const text = input.value.trim();
         if (!text || !this.activeVideoId) return;
 
-        const newComment = {
-          author: 'You',
-          avatar: 'https://www.gstatic.com/images/branding/product/2x/avatar_square_grey_512dp.png',
-          text: text,
-          publishedAt: new Date().toISOString(),
-          likeCount: 0
-        };
-
-        if (!this.localComments.has(this.activeVideoId)) {
-          this.localComments.set(this.activeVideoId, []);
-        }
-        this.localComments.get(this.activeVideoId).unshift(newComment);
-
+        const comment = { author: 'You', avatar: 'https://www.gstatic.com/images/branding/product/2x/avatar_square_grey_512dp.png', text };
+        if (!this.localComments.has(this.activeVideoId)) this.localComments.set(this.activeVideoId, []);
+        this.localComments.get(this.activeVideoId).unshift(comment);
         input.value = '';
-        this.refreshComments(this.activeVideoId, 'commentsList', true);
+        this.loadComments(this.activeVideoId);
       }
 
-      submitShortsComment() {
-        const input = document.getElementById('shortsCommentInput');
-        const text = input.value.trim();
-        if (!text || !this.activeShortsVideoId) return;
-
-        const newComment = {
-          author: 'You',
-          avatar: 'https://www.gstatic.com/images/branding/product/2x/avatar_square_grey_512dp.png',
-          text: text,
-          publishedAt: new Date().toISOString(),
-          likeCount: 0
-        };
-
-        if (!this.localComments.has(this.activeShortsVideoId)) {
-          this.localComments.set(this.activeShortsVideoId, []);
-        }
-        this.localComments.get(this.activeShortsVideoId).unshift(newComment);
-
-        input.value = '';
-        this.refreshComments(this.activeShortsVideoId, 'shortsDrawerComments', true);
-      }
-
-      // --- SHORTS VERTICAL FEED ---
       async showShorts() {
         this.setView('shorts');
-        const container = document.getElementById('shortsSection');
+        const container = document.getElementById('shortsView');
         if (container.children.length > 0) return;
 
-        this.setStatus('Fetching Shorts...');
-
+        this.setStatus('Loading Shorts...');
         try {
-          const searchRes = await fetch(`${CONFIG.BASE_URL}/search?part=snippet&type=video&videoDuration=short&q=${encodeURIComponent('#shorts')}&maxResults=10&key=${CONFIG.API_KEY}`);
-          const searchData = await searchRes.json();
-          if (!searchData.items?.length) throw new Error('Shorts not found');
-
-          const ids = searchData.items.map(i => i.id.videoId).join(',');
-          const statsRes = await fetch(`${CONFIG.BASE_URL}/videos?part=snippet,statistics&id=${ids}&key=${CONFIG.API_KEY}`);
-          const statsData = await statsRes.json();
-
+          const res = await fetch(`${CONFIG.BASE_URL}/search?part=snippet&type=video&videoDuration=short&q=%23shorts&maxResults=10&key=${CONFIG.API_KEY}`);
+          const data = await res.json();
           container.innerHTML = '';
           this.setStatus(null);
 
-          statsData.items.forEach((video, idx) => {
+          data.items.forEach((item, idx) => {
             const slot = document.createElement('div');
             slot.className = 'short-slot';
-            slot.dataset.index = idx;
-
-            slot.innerHTML = `
-              <div class="short-iframe-wrap">
-                <div id="short-player-${idx}"></div>
-              </div>
-              <div class="short-glass-overlay">
-                <div class="short-info">
-                  <span class="author-tag" onclick="app.loadChannel('${video.snippet.channelId}')">@${video.snippet.channelTitle}</span>
-                  <p class="caption">${video.snippet.title}</p>
-                </div>
-                <div class="short-rail">
-                  <button class="rail-btn" type="button">
-                    <svg viewBox="0 0 24 24" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                    <span>${utils.formatCount(video.statistics.likeCount)}</span>
-                  </button>
-                  <button class="rail-btn" type="button" onclick="app.openShortsDrawer('${video.id}')">
-                    <svg viewBox="0 0 24 24" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                    <span>${utils.formatCount(video.statistics.commentCount)}</span>
-                  </button>
-                  <button class="rail-btn" type="button" onclick="navigator.clipboard.writeText('https://youtube.com/shorts/${video.id}')">
-                    <svg viewBox="0 0 24 24" stroke-width="2.2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                    <span>Share</span>
-                  </button>
-                </div>
-              </div>
-            `;
-
+            slot.innerHTML = `<div id="short-${idx}" style="width:100%;height:100%;"></div>`;
             container.appendChild(slot);
 
             if (window.YT && YT.Player) {
-              const p = new YT.Player(`short-player-${idx}`, {
-                videoId: video.id,
-                playerVars: {
-                  autoplay: 0,
-                  controls: 1,
-                  rel: 0,
-                  playsinline: 1,
-                  loop: 1,
-                  playlist: video.id
-                }
+              new YT.Player(`short-${idx}`, {
+                videoId: item.id.videoId,
+                playerVars: { autoplay: 0, controls: 1, loop: 1, playlist: item.id.videoId }
               });
-              this.shortsPlayers.set(idx, p);
             }
           });
-
-          this.initShortsObserver();
-        } catch (err) {
-          this.setStatus(`Error loading Shorts: ${err.message}`);
-        }
+        } catch (e) { this.setStatus('Failed to load Shorts'); }
       }
 
-      initShortsObserver() {
-        if (this.shortsObserver) this.shortsObserver.disconnect();
-        this.shortsObserver = new IntersectionObserver((entries) => {
-          entries.forEach(entry => {
-            const idx = parseInt(entry.target.dataset.index, 10);
-            const player = this.shortsPlayers.get(idx);
-            if (!player || typeof player.playVideo !== 'function') return;
-
-            if (entry.isIntersecting) {
-              player.playVideo();
-            } else {
-              player.pauseVideo();
-            }
-          });
-        }, { threshold: 0.7 });
-
-        document.querySelectorAll('.short-slot').forEach(el => this.shortsObserver.observe(el));
-      }
-
-      openShortsDrawer(videoId) {
-        this.activeShortsVideoId = videoId;
-        document.getElementById('shortsDrawer').classList.add('open');
-        document.getElementById('shortsCommentInput').value = '';
-        this.refreshComments(videoId, 'shortsDrawerComments');
-        this.startCommentPolling(videoId, 'shortsDrawerComments');
-      }
-
-      closeShortsDrawer() {
-        document.getElementById('shortsDrawer').classList.remove('open');
-        this.stopCommentPolling();
-      }
-
-      // --- CHANNEL PROFILE VIEW ---
       async loadChannel(channelId) {
         this.setView('channel');
-        this.setStatus('Loading creator profile...');
-
+        this.setStatus('Loading channel...');
         try {
-          const res = await fetch(`${CONFIG.BASE_URL}/channels?part=snippet,contentDetails,statistics,brandingSettings&id=${channelId}&key=${CONFIG.API_KEY}`);
+          const res = await fetch(`${CONFIG.BASE_URL}/channels?part=snippet,contentDetails,statistics&id=${channelId}&key=${CONFIG.API_KEY}`);
           const data = await res.json();
-          if (!data.items?.length) throw new Error('Channel details missing');
-
           const ch = data.items[0];
-          document.getElementById('channelTitle').textContent = ch.snippet.title;
-          document.getElementById('channelAvatar').src = ch.snippet.thumbnails.medium?.url || ch.snippet.thumbnails.default?.url;
-          document.getElementById('channelStats').textContent = `${utils.formatCount(ch.statistics.subscriberCount)} subscribers • ${utils.formatCount(ch.statistics.videoCount)} videos`;
 
-          const banner = document.getElementById('channelBanner');
-          const bannerUrl = ch.brandingSettings?.image?.bannerExternalUrl;
-          if (bannerUrl) {
-            banner.src = bannerUrl;
-            banner.style.display = 'block';
-          } else {
-            banner.style.display = 'none';
-          }
+          document.getElementById('channelName').textContent = ch.snippet.title;
+          document.getElementById('channelAvatar').src = ch.snippet.thumbnails.default.url;
+          document.getElementById('channelMeta').textContent = `${helpers.format(ch.statistics.subscriberCount)} subscribers • ${helpers.format(ch.statistics.videoCount)} videos`;
 
-          const uploadsId = ch.contentDetails.relatedPlaylists.uploads;
-          const plRes = await fetch(`${CONFIG.BASE_URL}/playlistItems?part=snippet&playlistId=${uploadsId}&maxResults=24&key=${CONFIG.API_KEY}`);
+          const plId = ch.contentDetails.relatedPlaylists.uploads;
+          const plRes = await fetch(`${CONFIG.BASE_URL}/playlistItems?part=snippet&playlistId=${plId}&maxResults=20&key=${CONFIG.API_KEY}`);
           const plData = await plRes.json();
 
-          this.renderCards(plData.items.map(i => ({
+          this.renderGrid(plData.items.map(i => ({
             id: i.snippet.resourceId.videoId,
-            channelId: channelId,
+            channelId,
             title: i.snippet.title,
-            thumbnail: i.snippet.thumbnails.high?.url || i.snippet.thumbnails.default?.url,
-            uploader: ch.snippet.title
-          })), 'channelVideosGrid');
-
-        } catch (err) {
-          this.setStatus(`Could not load channel: ${err.message}`);
-        }
+            thumb: i.snippet.thumbnails.high?.url || i.snippet.thumbnails.default?.url,
+            channel: ch.snippet.title,
+            avatar: ch.snippet.thumbnails.default.url
+          })), 'channelGrid');
+        } catch (e) { this.setStatus('Error loading channel'); }
       }
     }
 
-    const app = new VideoHubApp();
+    const app = new StreamHubApp();
   </script>
 </body>
 </html>
