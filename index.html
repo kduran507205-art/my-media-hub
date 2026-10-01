@@ -3,350 +3,1075 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Video Hub</title>
+  <title>VideoHub — Modern Web Player</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  
   <style>
     :root {
-      --bg: #0f0f0f;
-      --surface: #1f1f1f;
-      --surface-hover: #272727;
-      --text: #ffffff;
-      --text-secondary: #aaa;
-      --accent: #ff0000;
-      --border: #333;
+      --bg: #09090b;
+      --card-bg: #121215;
+      --card-hover: #1c1c21;
+      --border: #27272a;
+      --text: #fafafa;
+      --text-muted: #a1a1aa;
+      --accent: #ef4444;
+      --accent-glow: rgba(239, 68, 68, 0.2);
+      --radius: 14px;
+      --header-h: 68px;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
     body {
-      font-family: system-ui, -apple-system, sans-serif;
       background-color: var(--bg);
       color: var(--text);
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
+      overflow-x: hidden;
     }
 
+    /* ---------------------------------------------
+       NAVBAR / HEADER
+    --------------------------------------------- */
     header {
       position: sticky;
       top: 0;
       z-index: 100;
-      background-color: var(--bg);
+      height: var(--header-h);
+      background: rgba(9, 9, 11, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 24px;
-      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      gap: 24px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 36px;
     }
 
     .logo {
-      font-size: 20px;
-      font-weight: bold;
-      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--text);
       cursor: pointer;
       text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .logo:hover { opacity: 0.9; }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+    .logo-icon svg { width: 16px; height: 16px; fill: #fff; }
+
+    .nav-tabs {
+      display: flex;
+      background: #18181b;
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .nav-tab {
       display: flex;
       align-items: center;
       gap: 8px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 13.5px;
+      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .nav-tab svg { width: 16px; height: 16px; stroke-width: 2.2; }
+    .nav-tab:hover { color: var(--text); }
+    .nav-tab.active {
+      background: #27272a;
+      color: var(--text);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
 
-    .search-container {
+    /* Search Bar */
+    .search-bar {
+      flex: 0 1 500px;
+      position: relative;
+    }
+
+    .search-bar input {
+      width: 100%;
+      height: 40px;
+      background: #18181b;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0 42px 0 16px;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .search-bar input:focus {
+      border-color: #3f3f46;
+      background: #1c1c21;
+    }
+
+    .search-btn {
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      color: var(--text-muted);
       display: flex;
-      flex: 0 1 600px;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+    }
+    .search-btn:hover { color: var(--text); }
+    .search-btn svg { width: 17px; height: 17px; }
+
+    /* ---------------------------------------------
+       MAIN VIEW CONTAINER
+    --------------------------------------------- */
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 32px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #18181b;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 13.5px;
+      font-weight: 600;
+      padding: 8px 18px;
+      border-radius: 9999px;
+      cursor: pointer;
+      margin-bottom: 24px;
+      transition: all 0.2s;
+    }
+    .back-btn svg { width: 15px; height: 15px; }
+    .back-btn:hover {
+      background: #27272a;
+      color: var(--text);
+      transform: translateX(-2px);
+    }
+
+    /* ---------------------------------------------
+       FEED GRID (VIDEOS)
+    --------------------------------------------- */
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 24px;
+    }
+
+    .video-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s;
+    }
+    .video-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+      border-color: #3f3f46;
+    }
+
+    .thumb-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #1c1c21;
+      overflow: hidden;
+    }
+
+    .thumb-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    .video-card:hover .thumb-wrap img {
+      transform: scale(1.03);
+    }
+
+    .card-meta {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
       gap: 8px;
     }
 
-    .search-container input {
-      width: 100%;
-      padding: 10px 16px;
-      border-radius: 20px;
-      border: 1px solid var(--border);
-      background: var(--surface);
+    .card-title {
+      font-size: 14.5px;
+      font-weight: 600;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
       color: var(--text);
-      font-size: 15px;
-      outline: none;
     }
 
-    .search-container input:focus {
-      border-color: #555;
-    }
-
-    .search-container button {
-      padding: 10px 20px;
-      border-radius: 20px;
-      border: none;
-      background: var(--surface-hover);
-      color: var(--text);
-      cursor: pointer;
+    .card-channel {
+      font-size: 13px;
+      color: var(--text-muted);
       font-weight: 500;
+      transition: color 0.15s;
+      width: fit-content;
+    }
+    .card-channel:hover {
+      color: #fff;
+      text-decoration: underline;
     }
 
-    .search-container button:hover {
-      background: #333;
-    }
-
-    main {
-      padding: 24px;
-      max-width: 1400px;
-      margin: 0 auto;
-      width: 100%;
-    }
-
-    .player-view {
+    /* ---------------------------------------------
+       THEATER PLAYER VIEW (DESKTOP SPLIT)
+    --------------------------------------------- */
+    .player-layout {
       display: none;
+      grid-template-columns: 1fr 380px;
+      gap: 32px;
+      align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+      .player-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .theater-frame {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #000;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+
+    .theater-frame iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .theater-details {
+      margin-top: 20px;
+      display: flex;
       flex-direction: column;
       gap: 16px;
     }
 
-    .player-wrapper {
-      position: relative;
-      padding-bottom: 56.25%;
-      height: 0;
-      background: #000;
-      border-radius: 12px;
-      overflow: hidden;
+    .theater-title {
+      font-size: 21px;
+      font-weight: 700;
+      line-height: 1.35;
     }
 
-    .player-wrapper iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
+    .channel-badge {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: fit-content;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .channel-badge:hover { background: var(--card-hover); }
+
+    .channel-badge img {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #27272a;
+    }
+
+    .channel-badge-info h4 {
+      font-size: 14.5px;
+      font-weight: 600;
+    }
+
+    .channel-badge-info p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Player Right Rail: Comments */
+    .theater-sidebar {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .theater-sidebar h3 {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .comment-item {
+      display: flex;
+      gap: 12px;
+      font-size: 13.5px;
+      line-height: 1.45;
+    }
+
+    .comment-item img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: #27272a;
+    }
+
+    .comment-body strong {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    /* ---------------------------------------------
+       SHORTS FULLSCREEN SNAP FEED
+    --------------------------------------------- */
+    .shorts-viewport {
+      display: none;
+      height: calc(100vh - var(--header-h) - 48px);
+      max-width: 440px;
+      margin: 0 auto;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scrollbar-width: none;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: #000;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    }
+    .shorts-viewport::-webkit-scrollbar { display: none; }
+
+    .short-slot {
+      height: 100%;
+      width: 100%;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      position: relative;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .short-iframe-wrap {
       width: 100%;
       height: 100%;
+      pointer-events: auto;
+    }
+
+    .short-iframe-wrap iframe {
+      width: 100% !important;
+      height: 100% !important;
       border: none;
     }
 
-    .video-info {
+    .short-glass-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
       display: flex;
-      flex-direction: column;
-      gap: 8px;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 24px 18px;
+      background: linear-gradient(0deg, rgba(9,9,11,0.95) 0%, rgba(9,9,11,0.4) 30%, transparent 60%);
     }
 
-    .video-title {
-      font-size: 20px;
-      font-weight: 600;
+    .short-info {
+      max-width: 76%;
+      pointer-events: auto;
     }
 
-    .channel-title {
-      color: var(--text-secondary);
+    .short-info .author-tag {
+      display: inline-block;
       font-size: 14px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .card {
-      background: var(--surface);
-      border-radius: 12px;
-      overflow: hidden;
+      font-weight: 700;
+      margin-bottom: 6px;
       cursor: pointer;
-      transition: transform 0.15s ease, background-color 0.15s ease;
-      display: flex;
-      flex-direction: column;
+      color: #fff;
     }
+    .short-info .author-tag:hover { text-decoration: underline; }
 
-    .card:hover {
-      transform: translateY(-4px);
-      background: var(--surface-hover);
-    }
-
-    .thumbnail-container {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      background: #222;
-    }
-
-    .thumbnail-container img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .details {
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .details .title {
-      font-size: 14px;
-      font-weight: 600;
-      line-height: 1.3;
+    .short-info .caption {
+      font-size: 13px;
+      color: #d4d4d8;
+      line-height: 1.4;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
 
-    .details .meta {
-      font-size: 12px;
-      color: var(--text-secondary);
+    .short-rail {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      pointer-events: auto;
+      align-items: center;
     }
 
-    .status-msg {
+    .rail-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(39, 39, 42, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      gap: 2px;
+      transition: all 0.2s ease;
+    }
+    .rail-btn:hover {
+      background: rgba(63, 63, 70, 0.9);
+      transform: scale(1.05);
+    }
+    .rail-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; }
+    .rail-btn span { font-size: 10px; font-weight: 600; color: #d4d4d8; }
+
+    /* Shorts Drawer Sheet */
+    .drawer {
+      position: fixed;
+      bottom: -100%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 440px;
+      height: 62%;
+      background: #121215;
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 20px 20px 0 0;
+      transition: bottom 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.8);
+    }
+    .drawer.open { bottom: 0; }
+
+    .drawer-top {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .drawer-top h4 { font-size: 15px; font-weight: 700; }
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+    }
+    .close-btn svg { width: 20px; height: 20px; }
+
+    .drawer-content {
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* ---------------------------------------------
+       CHANNEL PROFILE VIEW
+    --------------------------------------------- */
+    .channel-layout {
+      display: none;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .channel-hero {
+      position: relative;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .hero-banner {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      background: #18181b;
+      display: none;
+    }
+
+    .hero-bar {
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .hero-bar img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 3px solid #18181b;
+      object-fit: cover;
+      background: #27272a;
+    }
+
+    .hero-meta h2 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 4px;
+    }
+
+    .hero-meta p {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* State messages */
+    .feedback-state {
       text-align: center;
-      padding: 40px;
-      color: var(--text-secondary);
-      font-size: 16px;
+      padding: 60px 0;
+      color: var(--text-muted);
+      font-size: 15px;
+      font-weight: 500;
     }
   </style>
 </head>
 <body>
 
+  <!-- App Header -->
   <header>
-    <div class="logo" onclick="loadMostPopular()">
-      <span>▶</span> VideoHub
+    <div class="brand-group">
+      <div class="logo" onclick="app.showFeed()">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+        </div>
+        VideoHub
+      </div>
+
+      <nav class="nav-tabs">
+        <button id="tabVideos" class="nav-tab active" onclick="app.showFeed()">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect width="20" height="15" x="2" y="4.5" rx="2"></rect><polygon points="10 9 15 12 10 15 10 9"></polygon></svg>
+          Videos
+        </button>
+        <button id="tabShorts" class="nav-tab" onclick="app.showShorts()">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+          Shorts
+        </button>
+      </nav>
     </div>
-    <div class="search-container">
-      <input type="text" id="searchInput" placeholder="Search videos..." onkeydown="if(event.key==='Enter') searchVideos()" />
-      <button onclick="searchVideos()">Search</button>
+
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search videos or creators..." onkeydown="if(event.key==='Enter') app.search()" />
+      <button class="search-btn" onclick="app.search()" aria-label="Search">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      </button>
     </div>
   </header>
 
   <main>
-    <div id="playerView" class="player-view">
-      <div class="player-wrapper">
-        <iframe id="videoIframe" allowfullscreen allow="autoplay; encrypted-media"></iframe>
-      </div>
-      <div class="video-info">
-        <h1 id="playerTitle" class="video-title">Loading...</h1>
-        <div id="playerChannel" class="channel-title">...</div>
-      </div>
-    </div>
+    <!-- Back Button -->
+    <button id="backNav" class="back-btn" style="display: none;" onclick="app.goBack()">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      Back
+    </button>
 
-    <div id="feedGrid" class="grid"></div>
-    <div id="status" class="status-msg">Loading feed...</div>
+    <!-- Standard Feed Grid -->
+    <section id="feedSection">
+      <div id="feedGrid" class="video-grid"></div>
+    </section>
+
+    <!-- Theater Video Player Layout -->
+    <section id="theaterSection" class="player-layout">
+      <div class="theater-main">
+        <div class="theater-frame">
+          <iframe id="videoIframe" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+        </div>
+        <div class="theater-details">
+          <h1 id="playerTitle" class="theater-title">Loading...</h1>
+          <div id="playerChannelRow" class="channel-badge">
+            <img id="playerChannelAvatar" src="" alt="Creator" />
+            <div class="channel-badge-info">
+              <h4 id="playerChannelName">...</h4>
+              <p id="playerSubscriberCount">...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <aside class="theater-sidebar">
+        <h3>Top Comments</h3>
+        <div id="commentsList" class="comments-list"></div>
+      </aside>
+    </section>
+
+    <!-- Shorts Viewport -->
+    <section id="shortsSection" class="shorts-viewport"></section>
+
+    <!-- Channel Profile View -->
+    <section id="channelSection" class="channel-layout">
+      <div class="channel-hero">
+        <img id="channelBanner" class="hero-banner" alt="Banner" />
+        <div class="hero-bar">
+          <img id="channelAvatar" alt="Avatar" />
+          <div class="hero-meta">
+            <h2 id="channelTitle">...</h2>
+            <p id="channelStats">...</p>
+          </div>
+        </div>
+      </div>
+      <h3 style="font-size: 18px; font-weight: 700;">Uploads</h3>
+      <div id="channelVideosGrid" class="video-grid"></div>
+    </section>
+
+    <!-- Status / Loading Feedback -->
+    <div id="statusMsg" class="feedback-state">Loading...</div>
   </main>
 
+  <!-- Shorts Slide-Up Comments Drawer -->
+  <div class="drawer" id="shortsDrawer">
+    <div class="drawer-top">
+      <h4>Comments</h4>
+      <button class="close-btn" onclick="app.closeShortsDrawer()">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="drawer-content" id="shortsDrawerComments"></div>
+  </div>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+
   <script>
-    const API_KEY = 'AIzaSyDCZpIEH3_aWEjVTR0tv7ZHtgGDhZssjyI';
-    const BASE_URL = 'https://www.googleapis.com/youtube/v3';
+    const CONFIG = {
+      API_KEY: 'AIzaSyDCZpIEH3_aWEjVTR0tv7ZHtgGDhZssjyI',
+      BASE_URL: 'https://www.googleapis.com/youtube/v3'
+    };
 
-    // Load Popular Videos on Startup / Logo Click
-    async function loadMostPopular() {
-      showStatus("Loading popular videos...");
-      document.getElementById('playerView').style.display = 'none';
-      document.getElementById('feedGrid').style.display = 'grid';
+    const utils = {
+      formatCount(num) {
+        if (!num) return '0';
+        const n = parseInt(num, 10);
+        if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+        if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+        return n.toLocaleString();
+      }
+    };
 
-      try {
-        const url = `${BASE_URL}/videos?part=snippet,contentDetails,statistics&chart=mostPopular&regionCode=US&maxResults=24&key=${API_KEY}`;
-        const res = await fetch(url);
-        
-        if (!res.ok) {
-          const errData = await res.json();
-          throw new Error(errData.error?.message || `HTTP error ${res.status}`);
+    class VideoHubApp {
+      constructor() {
+        this.currentView = 'feed';
+        this.prevView = 'feed';
+        this.shortsPlayers = new Map();
+        this.shortsObserver = null;
+        this.init();
+      }
+
+      init() {
+        this.loadPopularFeed();
+      }
+
+      setStatus(msg) {
+        const el = document.getElementById('statusMsg');
+        if (msg) {
+          el.textContent = msg;
+          el.style.display = 'block';
+        } else {
+          el.style.display = 'none';
         }
-        
-        const data = await res.json();
-        
-        renderGrid(data.items.map(item => ({
-          videoId: item.id,
-          title: item.snippet.title,
-          thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.default?.url,
-          uploader: item.snippet.channelTitle
-        })));
-      } catch (err) {
-        showStatus(`Failed to load videos: ${err.message}`);
-        console.error("YouTube API Error:", err);
       }
-    }
 
-    // Search Videos
-    async function searchVideos() {
-      const query = document.getElementById('searchInput').value.trim();
-      if (!query) return;
+      setView(view) {
+        this.prevView = this.currentView;
+        this.currentView = view;
 
-      showStatus(`Searching for "${query}"...`);
-      document.getElementById('playerView').style.display = 'none';
-      document.getElementById('feedGrid').style.display = 'grid';
+        document.getElementById('feedSection').style.display = view === 'feed' ? 'block' : 'none';
+        document.getElementById('theaterSection').style.display = view === 'theater' ? 'grid' : 'none';
+        document.getElementById('shortsSection').style.display = view === 'shorts' ? 'block' : 'none';
+        document.getElementById('channelSection').style.display = view === 'channel' ? 'flex' : 'none';
+        document.getElementById('backNav').style.display = (view === 'theater' || view === 'channel') ? 'inline-flex' : 'none';
 
-      try {
-        const url = `${BASE_URL}/search?part=snippet&type=video&maxResults=24&q=${encodeURIComponent(query)}&key=${API_KEY}`;
-        const res = await fetch(url);
+        document.getElementById('tabVideos').classList.toggle('active', view === 'feed');
+        document.getElementById('tabShorts').classList.toggle('active', view === 'shorts');
 
-        if (!res.ok) {
-          const errData = await res.json();
-          throw new Error(errData.error?.message || `HTTP error ${res.status}`);
+        if (view !== 'theater') {
+          document.getElementById('videoIframe').src = '';
         }
 
-        const data = await res.json();
+        if (view !== 'shorts') {
+          this.shortsPlayers.forEach(p => {
+            if (p && typeof p.pauseVideo === 'function') p.pauseVideo();
+          });
+        }
 
-        renderGrid(data.items.map(item => ({
-          videoId: item.id.videoId,
-          title: item.snippet.title,
-          thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.default?.url,
-          uploader: item.snippet.channelTitle
-        })));
-      } catch (err) {
-        showStatus(`Search failed: ${err.message}`);
-        console.error("YouTube API Error:", err);
+        this.setStatus(null);
+        window.scrollTo(0, 0);
+      }
+
+      goBack() {
+        if (this.prevView === 'shorts') {
+          this.showShorts();
+        } else {
+          this.showFeed();
+        }
+      }
+
+      showFeed() {
+        this.setView('feed');
+        if (!document.getElementById('feedGrid').children.length) {
+          this.loadPopularFeed();
+        }
+      }
+
+      // --- FEED & SEARCH ---
+      async loadPopularFeed() {
+        this.setStatus('Discovering trending videos...');
+        this.setView('feed');
+        try {
+          const res = await fetch(`${CONFIG.BASE_URL}/videos?part=snippet,statistics&chart=mostPopular&regionCode=US&maxResults=24&key=${CONFIG.API_KEY}`);
+          const data = await res.json();
+          if (!data.items) throw new Error(data.error?.message || 'Failed to fetch items');
+          this.renderCards(data.items.map(item => ({
+            id: item.id,
+            channelId: item.snippet.channelId,
+            title: item.snippet.title,
+            thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.default?.url,
+            uploader: item.snippet.channelTitle
+          })), 'feedGrid');
+        } catch (err) {
+          this.setStatus(`Error loading feed: ${err.message}`);
+        }
+      }
+
+      async search() {
+        const query = document.getElementById('searchInput').value.trim();
+        if (!query) return;
+
+        this.setStatus(`Searching for "${query}"...`);
+        this.setView('feed');
+
+        try {
+          const res = await fetch(`${CONFIG.BASE_URL}/search?part=snippet&type=video&maxResults=24&q=${encodeURIComponent(query)}&key=${CONFIG.API_KEY}`);
+          const data = await res.json();
+          if (!data.items) throw new Error('Search request failed');
+          this.renderCards(data.items.map(item => ({
+            id: item.id.videoId,
+            channelId: item.snippet.channelId,
+            title: item.snippet.title,
+            thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.default?.url,
+            uploader: item.snippet.channelTitle
+          })), 'feedGrid');
+        } catch (err) {
+          this.setStatus(`Search failed: ${err.message}`);
+        }
+      }
+
+      renderCards(items, targetId) {
+        const container = document.getElementById(targetId);
+        container.innerHTML = '';
+        this.setStatus(null);
+
+        if (!items.length) {
+          this.setStatus('No videos found.');
+          return;
+        }
+
+        items.forEach(item => {
+          if (!item.id) return;
+          const card = document.createElement('article');
+          card.className = 'video-card';
+          card.innerHTML = `
+            <div class="thumb-wrap">
+              <img src="${item.thumbnail}" alt="${item.title}" loading="lazy" />
+            </div>
+            <div class="card-meta">
+              <h3 class="card-title">${item.title}</h3>
+              <span class="card-channel">${item.uploader}</span>
+            </div>
+          `;
+
+          card.onclick = (e) => {
+            if (e.target.classList.contains('card-channel')) {
+              this.loadChannel(item.channelId);
+            } else {
+              this.playVideo(item.id, item.title, item.channelId, item.uploader);
+            }
+          };
+          container.appendChild(card);
+        });
+      }
+
+      // --- THEATER PLAYER ---
+      async playVideo(id, title, channelId, channelTitle) {
+        this.setView('theater');
+
+        document.getElementById('videoIframe').src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1`;
+        document.getElementById('playerTitle').textContent = title;
+        document.getElementById('playerChannelName').textContent = channelTitle;
+        document.getElementById('playerSubscriberCount').textContent = 'Loading subscriber count...';
+        document.getElementById('playerChannelAvatar').src = '';
+
+        document.getElementById('playerChannelRow').onclick = () => this.loadChannel(channelId);
+
+        // Fetch channel metrics
+        try {
+          const res = await fetch(`${CONFIG.BASE_URL}/channels?part=snippet,statistics&id=${channelId}&key=${CONFIG.API_KEY}`);
+          const data = await res.json();
+          if (data.items?.[0]) {
+            const ch = data.items[0];
+            document.getElementById('playerChannelAvatar').src = ch.snippet.thumbnails.default.url;
+            document.getElementById('playerSubscriberCount').textContent = `${utils.formatCount(ch.statistics.subscriberCount)} subscribers`;
+          }
+        } catch (err) {
+          console.warn('Channel stats unavailable');
+        }
+
+        this.loadComments(id, 'commentsList');
+      }
+
+      async loadComments(videoId, targetId) {
+        const target = document.getElementById(targetId);
+        target.innerHTML = '<p class="feedback-state">Loading comments...</p>';
+
+        try {
+          const res = await fetch(`${CONFIG.BASE_URL}/commentThreads?part=snippet&videoId=${videoId}&maxResults=15&key=${CONFIG.API_KEY}`);
+          const data = await res.json();
+
+          if (!data.items?.length) {
+            target.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:20px 0;">Comments are turned off or none exist.</p>';
+            return;
+          }
+
+          target.innerHTML = data.items.map(item => {
+            const c = item.snippet.topLevelComment.snippet;
+            return `
+              <div class="comment-item">
+                <img src="${c.authorProfileImageUrl}" alt="${c.authorDisplayName}" />
+                <div class="comment-body">
+                  <strong>${c.authorDisplayName}</strong>
+                  ${c.textDisplay}
+                </div>
+              </div>
+            `;
+          }).join('');
+        } catch (err) {
+          target.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">Comments could not be retrieved.</p>';
+        }
+      }
+
+      // --- SHORTS VERTICAL FEED ---
+      async showShorts() {
+        this.setView('shorts');
+        const container = document.getElementById('shortsSection');
+        if (container.children.length > 0) return;
+
+        this.setStatus('Fetching Shorts...');
+
+        try {
+          const searchRes = await fetch(`${CONFIG.BASE_URL}/search?part=snippet&type=video&videoDuration=short&q=${encodeURIComponent('#shorts')}&maxResults=10&key=${CONFIG.API_KEY}`);
+          const searchData = await searchRes.json();
+          if (!searchData.items?.length) throw new Error('Shorts not found');
+
+          const ids = searchData.items.map(i => i.id.videoId).join(',');
+          const statsRes = await fetch(`${CONFIG.BASE_URL}/videos?part=snippet,statistics&id=${ids}&key=${CONFIG.API_KEY}`);
+          const statsData = await statsRes.json();
+
+          container.innerHTML = '';
+          this.setStatus(null);
+
+          statsData.items.forEach((video, idx) => {
+            const slot = document.createElement('div');
+            slot.className = 'short-slot';
+            slot.dataset.index = idx;
+
+            slot.innerHTML = `
+              <div class="short-iframe-wrap">
+                <div id="short-player-${idx}"></div>
+              </div>
+              <div class="short-glass-overlay">
+                <div class="short-info">
+                  <span class="author-tag" onclick="app.loadChannel('${video.snippet.channelId}')">@${video.snippet.channelTitle}</span>
+                  <p class="caption">${video.snippet.title}</p>
+                </div>
+                <div class="short-rail">
+                  <button class="rail-btn" type="button">
+                    <svg viewBox="0 0 24 24" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                    <span>${utils.formatCount(video.statistics.likeCount)}</span>
+                  </button>
+                  <button class="rail-btn" type="button" onclick="app.openShortsDrawer('${video.id}')">
+                    <svg viewBox="0 0 24 24" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    <span>${utils.formatCount(video.statistics.commentCount)}</span>
+                  </button>
+                  <button class="rail-btn" type="button" onclick="navigator.clipboard.writeText('https://youtube.com/shorts/${video.id}')">
+                    <svg viewBox="0 0 24 24" stroke-width="2.2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    <span>Share</span>
+                  </button>
+                </div>
+              </div>
+            `;
+
+            container.appendChild(slot);
+
+            if (window.YT && YT.Player) {
+              const p = new YT.Player(`short-player-${idx}`, {
+                videoId: video.id,
+                playerVars: {
+                  autoplay: 0,
+                  controls: 1,
+                  rel: 0,
+                  playsinline: 1,
+                  loop: 1,
+                  playlist: video.id
+                }
+              });
+              this.shortsPlayers.set(idx, p);
+            }
+          });
+
+          this.initShortsObserver();
+        } catch (err) {
+          this.setStatus(`Error loading Shorts: ${err.message}`);
+        }
+      }
+
+      initShortsObserver() {
+        if (this.shortsObserver) this.shortsObserver.disconnect();
+        this.shortsObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            const idx = parseInt(entry.target.dataset.index, 10);
+            const player = this.shortsPlayers.get(idx);
+            if (!player || typeof player.playVideo !== 'function') return;
+
+            if (entry.isIntersecting) {
+              player.playVideo();
+            } else {
+              player.pauseVideo();
+            }
+          });
+        }, { threshold: 0.7 });
+
+        document.querySelectorAll('.short-slot').forEach(el => this.shortsObserver.observe(el));
+      }
+
+      openShortsDrawer(videoId) {
+        document.getElementById('shortsDrawer').classList.add('open');
+        this.loadComments(videoId, 'shortsDrawerComments');
+      }
+
+      closeShortsDrawer() {
+        document.getElementById('shortsDrawer').classList.remove('open');
+      }
+
+      // --- CHANNEL PROFILE ---
+      async loadChannel(channelId) {
+        this.setView('channel');
+        this.setStatus('Loading channel profile...');
+
+        try {
+          const res = await fetch(`${CONFIG.BASE_URL}/channels?part=snippet,contentDetails,statistics,brandingSettings&id=${channelId}&key=${CONFIG.API_KEY}`);
+          const data = await res.json();
+          if (!data.items?.length) throw new Error('Channel details missing');
+
+          const ch = data.items[0];
+          document.getElementById('channelTitle').textContent = ch.snippet.title;
+          document.getElementById('channelAvatar').src = ch.snippet.thumbnails.medium?.url || ch.snippet.thumbnails.default?.url;
+          document.getElementById('channelStats').textContent = `${utils.formatCount(ch.statistics.subscriberCount)} subscribers • ${utils.formatCount(ch.statistics.videoCount)} videos`;
+
+          const banner = document.getElementById('channelBanner');
+          const bannerUrl = ch.brandingSettings?.image?.bannerExternalUrl;
+          if (bannerUrl) {
+            banner.src = bannerUrl;
+            banner.style.display = 'block';
+          } else {
+            banner.style.display = 'none';
+          }
+
+          const uploadsId = ch.contentDetails.relatedPlaylists.uploads;
+          const plRes = await fetch(`${CONFIG.BASE_URL}/playlistItems?part=snippet&playlistId=${uploadsId}&maxResults=24&key=${CONFIG.API_KEY}`);
+          const plData = await plRes.json();
+
+          this.renderCards(plData.items.map(i => ({
+            id: i.snippet.resourceId.videoId,
+            channelId: channelId,
+            title: i.snippet.title,
+            thumbnail: i.snippet.thumbnails.high?.url || i.snippet.thumbnails.default?.url,
+            uploader: ch.snippet.title
+          })), 'channelVideosGrid');
+
+        } catch (err) {
+          this.setStatus(`Could not load channel: ${err.message}`);
+        }
       }
     }
 
-    // Render Video Cards in Grid
-    function renderGrid(items) {
-      const grid = document.getElementById('feedGrid');
-      grid.innerHTML = '';
-      hideStatus();
-
-      if (!items || items.length === 0) {
-        showStatus("No results found.");
-        return;
-      }
-
-      items.forEach(item => {
-        if (!item.videoId) return;
-
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.onclick = () => openPlayer(item.videoId, item.title, item.uploader);
-
-        card.innerHTML = `
-          <div class="thumbnail-container">
-            <img src="${item.thumbnail}" alt="${item.title}" loading="lazy" />
-          </div>
-          <div class="details">
-            <div class="title">${item.title}</div>
-            <div class="meta">${item.uploader}</div>
-          </div>
-        `;
-
-        grid.appendChild(card);
-      });
-    }
-
-    // Open Embedded Player View
-    function openPlayer(videoId, title, channel) {
-      document.getElementById('feedGrid').style.display = 'none';
-      hideStatus();
-
-      const playerView = document.getElementById('playerView');
-      const iframe = document.getElementById('videoIframe');
-      
-      iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`;
-      document.getElementById('playerTitle').textContent = title;
-      document.getElementById('playerChannel').textContent = channel;
-
-      playerView.style.display = 'flex';
-      window.scrollTo(0, 0);
-    }
-
-    function showStatus(msg) {
-      const statusEl = document.getElementById('status');
-      statusEl.textContent = msg;
-      statusEl.style.display = 'block';
-    }
-
-    function hideStatus() {
-      document.getElementById('status').style.display = 'none';
-    }
-
-    // Initial Load
-    loadMostPopular();
+    const app = new VideoHubApp();
   </script>
 </body>
 </html>
