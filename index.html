@@ -3,99 +3,74 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StreamHub</title>
+  <title>YouTube Clone</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   
   <style>
     :root {
-      --bg: #0f0f0f;
-      --surface: #212121;
-      --surface-hover: #303030;
-      --border: #3f3f3f;
-      --text: #f1f1f1;
-      --text-muted: #aaa;
-      --accent: #3ea6ff;
-      --accent-red: #ff0000;
+      --yt-bg: #0f0f0f;
+      --yt-surface: #212121;
+      --yt-surface-hover: #272727;
+      --yt-border: #3f3f3f;
+      --yt-text: #f1f1f1;
+      --yt-text-secondary: #aaa;
+      --yt-red: #ff0000;
+      --yt-blue: #3ea6ff;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
 
     body {
-      background-color: var(--bg);
-      color: var(--text);
+      background-color: var(--yt-bg);
+      color: var(--yt-text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
     }
 
-    /* ---------------------------------------------
-       YOUTUBE TOP HEADER
-    --------------------------------------------- */
+    /* --- HEADER --- */
     header {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       height: 56px;
-      background: var(--bg);
+      background: var(--yt-bg);
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 16px;
       z-index: 200;
-      border-bottom: 1px solid transparent;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .header-left, .header-right {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .menu-icon, .header-icon {
-      background: none;
-      border: none;
-      color: var(--text);
-      cursor: pointer;
-      padding: 8px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .menu-icon:hover, .header-icon:hover { background: var(--surface-hover); }
-    .menu-icon svg, .header-icon svg { width: 24px; height: 24px; fill: currentColor; }
-
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    
     .logo {
       display: flex;
       align-items: center;
       gap: 4px;
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 700;
-      letter-spacing: -1.5px;
+      letter-spacing: -1px;
       color: #fff;
       cursor: pointer;
       text-decoration: none;
     }
-    .logo-box {
-      background: var(--accent-red);
-      width: 28px;
-      height: 20px;
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .logo-box svg { width: 12px; height: 12px; fill: #fff; }
 
-    /* Search Bar */
+    .logo-icon {
+      color: var(--yt-red);
+      width: 30px;
+      height: 22px;
+    }
+
     .header-center {
       display: flex;
       align-items: center;
-      flex: 0 1 600px;
+      flex: 0 1 732px;
       gap: 12px;
     }
 
@@ -103,10 +78,14 @@
       display: flex;
       width: 100%;
       background: #121212;
-      border: 1px solid var(--border);
+      border: 1px solid var(--yt-border);
       border-radius: 40px 0 0 40px;
-      padding-left: 16px;
-      overflow: hidden;
+      padding: 0 16px;
+      align-items: center;
+    }
+
+    .search-form:focus-within {
+      border-color: var(--yt-blue);
     }
 
     .search-form input {
@@ -120,8 +99,8 @@
     }
 
     .search-submit {
-      background: var(--surface);
-      border: 1px solid var(--border);
+      background: #222;
+      border: 1px solid var(--yt-border);
       border-left: none;
       border-radius: 0 40px 40px 0;
       width: 64px;
@@ -130,16 +109,16 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--text-muted);
+      color: var(--yt-text);
     }
-    .search-submit:hover { background: var(--surface-hover); color: #fff; }
+    .search-submit:hover { background: var(--yt-surface-hover); }
     .search-submit svg { width: 20px; height: 20px; fill: currentColor; }
 
     .user-avatar {
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: #333;
+      background: #555;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -148,9 +127,7 @@
       color: #fff;
     }
 
-    /* ---------------------------------------------
-       APP BODY CONTAINER & SIDEBAR
-    --------------------------------------------- */
+    /* --- LAYOUT --- */
     .app-body {
       display: flex;
       margin-top: 56px;
@@ -159,15 +136,14 @@
 
     sidebar {
       width: 240px;
-      background: var(--bg);
+      background: var(--yt-bg);
       padding: 12px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 4px;
       position: sticky;
       top: 56px;
       height: calc(100vh - 56px);
-      overflow-y: auto;
     }
 
     .sidebar-item {
@@ -181,190 +157,89 @@
       cursor: pointer;
       text-decoration: none;
     }
-    .sidebar-item svg { width: 22px; height: 22px; fill: currentColor; }
-    .sidebar-item:hover, .sidebar-item.active { background: var(--surface); }
-    .sidebar-divider { height: 1px; background: var(--border); margin: 8px 0; }
+    .sidebar-item:hover { background: var(--yt-surface-hover); }
 
-    /* Main Content */
     main {
       flex: 1;
       padding: 24px;
-      background: var(--bg);
+      background: var(--yt-bg);
       overflow-y: auto;
     }
 
-    /* Category Chips */
+    /* --- FEED & CHIPS --- */
     .chips-bar {
       display: flex;
       gap: 12px;
       margin-bottom: 24px;
       overflow-x: auto;
-      padding-bottom: 4px;
     }
-    .chips-bar::-webkit-scrollbar { display: none; }
     .chip {
-      background: var(--surface);
+      background: var(--yt-surface);
       border: none;
       color: #fff;
       padding: 6px 12px;
       border-radius: 8px;
       font-size: 14px;
-      font-weight: 500;
       cursor: pointer;
-      white-space: nowrap;
     }
-    .chip:hover { background: var(--surface-hover); }
-    .chip.active { background: #f1f1f1; color: #0f0f0f; }
+    .chip.active { background: #fff; color: #0f0f0f; font-weight: 500; }
 
-    /* Video Feed Grid */
     .video-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 40px 16px;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 32px 16px;
     }
 
-    .video-card {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      cursor: pointer;
-    }
-
-    .thumbnail-box {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      background: #222;
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    .thumbnail-box img { width: 100%; height: 100%; object-fit: cover; transition: border-radius 0.2s; }
-    .video-card:hover .thumbnail-box img { border-radius: 0; }
+    .video-card { display: flex; flex-direction: column; gap: 12px; cursor: pointer; }
+    .thumbnail-box { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #222; border-radius: 12px; overflow: hidden; }
+    .thumbnail-box img { width: 100%; height: 100%; object-fit: cover; }
 
     .video-meta-row { display: flex; gap: 12px; }
-    .card-channel-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #333; flex-shrink: 0; }
-    .card-info { display: flex; flex-direction: column; gap: 4px; }
-    .card-title { font-size: 15px; font-weight: 500; line-height: 1.4; color: #fff; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .card-channel-name { font-size: 13px; color: var(--text-muted); }
-    .card-channel-name:hover { color: #fff; }
+    .card-channel-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+    .card-title { font-size: 16px; font-weight: 500; line-height: 1.3; color: #fff; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-channel-name, .card-stats { font-size: 13px; color: var(--yt-text-secondary); margin-top: 2px; }
 
-    /* ---------------------------------------------
-       THEATER WATCH VIEW
-    --------------------------------------------- */
+    /* --- WATCH VIEW --- */
     .watch-layout {
       display: none;
       grid-template-columns: 1fr 400px;
       gap: 24px;
-      align-items: start;
     }
-    @media (max-width: 1100px) { .watch-layout { grid-template-columns: 1fr; } }
+    @media (max-width: 1000px) { .watch-layout { grid-template-columns: 1fr; } }
 
-    .watch-main { display: flex; flex-direction: column; gap: 14px; }
-    .player-container {
-      position: relative;
-      width: 100%;
-      padding-bottom: 56.25%;
-      border-radius: 12px;
-      overflow: hidden;
-      background: #000;
-    }
+    .player-container { position: relative; width: 100%; padding-bottom: 56.25%; border-radius: 12px; overflow: hidden; background: #000; }
     .player-container iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
 
-    .watch-title { font-size: 20px; font-weight: 700; line-height: 1.4; }
+    .watch-title { font-size: 20px; font-weight: 700; margin-top: 12px; }
+    .watch-toolbar { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; flex-wrap: wrap; gap: 12px; }
+    .channel-row { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+    .channel-row img { width: 40px; height: 40px; border-radius: 50%; }
 
-    .watch-toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border);
-    }
+    .description-box { background: var(--yt-surface); border-radius: 12px; padding: 12px; margin-top: 16px; font-size: 14px; white-space: pre-line; color: #f1f1f1; }
 
-    .channel-row { display: flex; align-items: center; gap: 14px; cursor: pointer; }
-    .channel-row img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-    .channel-text h4 { font-size: 16px; font-weight: 500; }
-    .channel-text p { font-size: 12px; color: var(--text-muted); }
-
-    .toolbar-buttons { display: flex; align-items: center; gap: 8px; }
-    .yt-btn {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--surface);
-      border: none;
-      color: #fff;
-      font-size: 14px;
-      font-weight: 500;
-      padding: 8px 16px;
-      border-radius: 20px;
-      cursor: pointer;
-    }
-    .yt-btn svg { width: 18px; height: 18px; fill: currentColor; }
-    .yt-btn:hover { background: var(--surface-hover); }
-
-    /* Comment Section */
-    .comments-section { display: flex; flex-direction: column; gap: 18px; margin-top: 8px; }
-    .comments-header { font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 24px; }
-    
-    .comment-composer { display: flex; gap: 16px; align-items: flex-start; }
-    .comment-composer input {
-      width: 100%;
-      background: none;
-      border: none;
-      border-bottom: 1px solid var(--border);
-      padding: 6px 0;
-      color: #fff;
-      font-size: 14px;
-      outline: none;
-    }
-    .comment-composer input:focus { border-bottom-color: #fff; }
-
-    .comments-list { display: flex; flex-direction: column; gap: 20px; }
+    /* --- COMMENTS --- */
+    .comments-section { margin-top: 24px; display: flex; flex-direction: column; gap: 16px; }
     .comment-item { display: flex; gap: 16px; font-size: 14px; }
-    .comment-item img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-    .comment-content { display: flex; flex-direction: column; gap: 4px; flex: 1; }
-    .comment-author-line { display: flex; gap: 8px; align-items: center; }
-    .comment-author { font-size: 13px; font-weight: 500; color: #fff; }
-    .comment-time { font-size: 12px; color: var(--text-muted); }
-    .comment-text { color: #f1f1f1; line-height: 1.4; }
+    .comment-item img { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; }
+    .comment-author { font-size: 13px; font-weight: 500; }
+    .comment-text { margin-top: 4px; line-height: 1.4; }
+    .comment-replies { margin-left: 56px; margin-top: 12px; display: flex; flex-direction: column; gap: 12px; }
 
-    /* Shorts Viewport */
-    .shorts-layout {
-      display: none;
-      height: calc(100vh - 80px);
-      max-width: 400px;
-      margin: 0 auto;
-      overflow-y: scroll;
-      scroll-snap-type: y mandatory;
-      scrollbar-width: none;
-      border-radius: 16px;
-      background: #000;
-    }
-    .shorts-layout::-webkit-scrollbar { display: none; }
-    .short-slot { height: 100%; width: 100%; scroll-snap-align: start; position: relative; background: #000; }
-    .short-slot iframe { width: 100% !important; height: 100% !important; border: none; }
-
-    /* Channel Profile */
+    /* --- CHANNEL VIEW --- */
     .channel-layout { display: none; flex-direction: column; gap: 24px; }
-    .channel-banner { width: 100%; height: 200px; object-fit: cover; border-radius: 12px; background: #222; display: none; }
-    .channel-header-bar { display: flex; align-items: center; gap: 24px; }
-    .channel-header-bar img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; }
+    .channel-banner { width: 100%; height: 180px; object-fit: cover; border-radius: 12px; background: #222; }
+    .channel-stats-bar { display: flex; gap: 16px; color: var(--yt-text-secondary); font-size: 14px; margin-top: 8px; }
 
-    .status-msg { text-align: center; padding: 60px; color: var(--text-muted); font-size: 15px; }
+    .status-msg { text-align: center; padding: 40px; color: var(--yt-text-secondary); }
   </style>
 </head>
 <body>
 
-  <!-- Top Navigation Header -->
   <header>
     <div class="header-left">
       <a class="logo" onclick="app.showFeed()">
-        <div class="logo-box">
-          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-        </div>
-        StreamHub
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        YouTube
       </a>
     </div>
 
@@ -378,86 +253,63 @@
     </div>
 
     <div class="header-right">
-      <div class="user-avatar">U</div>
+      <div class="user-avatar">Y</div>
     </div>
   </header>
 
   <div class="app-body">
-    <!-- Sidebar Navigation -->
     <sidebar>
-      <a class="sidebar-item active" onclick="app.showFeed()">
-        <svg viewBox="0 0 24 24"><path d="M4 21V10.08l8-6.92 8 6.92V21h-5v-6h-6v6H4z"/></svg>
-        Home
-      </a>
-      <a class="sidebar-item" onclick="app.showShorts()">
-        <svg viewBox="0 0 24 24"><path d="M10 14.65v-5.3L15 12l-5 2.65zm7.77-4.33c-.77-.32-1.2-.5-1.2-.5L18 9.06c1.84-.96 2.53-3.23 1.56-5.07s-3.23-2.53-5.07-1.56L6 6.54C4.38 7.37 3.4 9.1 3.5 10.93c.1 1.83 1.25 3.39 3 4.05.74.28 1.45.42 1.45.42l-.84 1.25c-1.35 2.02-.75 4.75 1.33 5.92.56.31 1.18.46 1.79.46 1.45 0 2.84-.75 3.62-2.02l4.63-7.53c.69-1.12.51-2.58-.41-3.48z"/></svg>
-        Shorts
-      </a>
+      <a class="sidebar-item" onclick="app.showFeed()">Home</a>
+      <a class="sidebar-item" onclick="app.loadChannel('UCX6OQ3DkcsbYNE6H8uQQuVA')">MrBeast</a>
     </sidebar>
 
-    <!-- Main Content Area -->
     <main>
-      <!-- Feed View -->
       <div id="feedView">
         <div class="chips-bar">
           <button class="chip active" onclick="app.filterCategory('All')">All</button>
           <button class="chip" onclick="app.filterCategory('Gaming')">Gaming</button>
-          <button class="chip" onclick="app.filterCategory('Music')">Music</button>
           <button class="chip" onclick="app.filterCategory('Tech')">Tech</button>
         </div>
         <div id="videoGrid" class="video-grid"></div>
       </div>
 
-      <!-- Watch / Player View -->
       <div id="watchView" class="watch-layout">
-        <div class="watch-main">
+        <div>
           <div class="player-container">
             <iframe id="videoIframe" allowfullscreen allow="autoplay; encrypted-media"></iframe>
           </div>
           <h1 id="watchTitle" class="watch-title">...</h1>
-
           <div class="watch-toolbar">
             <div id="watchChannelRow" class="channel-row">
               <img id="watchChannelAvatar" src="" alt="" />
-              <div class="channel-text">
+              <div>
                 <h4 id="watchChannelName">...</h4>
-                <p id="watchSubCount">...</p>
+                <p id="watchSubCount" style="color:var(--yt-text-secondary);font-size:12px;"></p>
               </div>
             </div>
-            <div class="toolbar-buttons">
-              <button class="yt-btn" type="button">
-                <svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>
-                <span id="watchLikeCount">Like</span>
-              </button>
-            </div>
           </div>
-
-          <!-- Comments Section -->
+          <div id="watchDescription" class="description-box"></div>
+          
           <div class="comments-section">
-            <div class="comments-header"><span id="commentCountHeader">Comments</span></div>
-            <div class="comment-composer">
-              <div class="user-avatar">U</div>
-              <input type="text" id="commentInput" placeholder="Add a comment..." onkeydown="if(event.key==='Enter') app.postComment()" />
-            </div>
-            <div id="commentsList" class="comments-list"></div>
+            <h3 id="commentCountHeader">Comments</h3>
+            <div id="commentsList"></div>
           </div>
         </div>
-        <div></div>
+        
+        <div id="recommendedGrid" class="video-grid" style="grid-template-columns: 1fr;"></div>
       </div>
 
-      <!-- Shorts Vertical Feed -->
-      <div id="shortsView" class="shorts-layout"></div>
-
-      <!-- Channel Profile View -->
       <div id="channelView" class="channel-layout">
         <img id="channelBanner" class="channel-banner" alt="Banner" />
-        <div class="channel-header-bar">
-          <img id="channelAvatar" alt="Avatar" />
+        <div style="display:flex; gap: 24px; align-items:center;">
+          <img id="channelAvatar" style="width:128px;height:128px;border-radius:50%;" alt="Avatar" />
           <div>
-            <h2 id="channelName">...</h2>
-            <p id="channelMeta" style="color:var(--text-muted);font-size:13px;"></p>
+            <h1 id="channelName">...</h1>
+            <div id="channelStatsBar" class="channel-stats-bar"></div>
+            <p id="channelAbout" style="margin-top:8px;font-size:14px;color:var(--yt-text-secondary);"></p>
           </div>
         </div>
+        <h3>Uploads</h3>
         <div id="channelGrid" class="video-grid"></div>
       </div>
 
@@ -465,11 +317,9 @@
     </main>
   </div>
 
-  <script src="https://www.youtube.com/iframe_api"></script>
-
   <script>
     const CONFIG = {
-      API_KEY: 'AIzaSyDCZpIEH3_aWEjVTR0tv7ZHtgGDhZssjyI',
+      API_KEY: 'YOUR_YOUTUBE_API_KEY', // Replace with your standard YouTube Data API v3 key
       BASE_URL: 'https://www.googleapis.com/youtube/v3'
     };
 
@@ -483,16 +333,15 @@
       }
     };
 
-    class StreamHubApp {
+    class YouTubeClone {
       constructor() {
-        this.activeVideoId = null;
-        this.localComments = new Map();
-        this.shortsPlayers = new Map();
+        this.nextPageToken = null;
+        this.currentUploadsPlaylistId = null;
         this.init();
       }
 
       init() {
-        this.loadFeed('gaming');
+        this.loadAllChannelVideos('UCX6OQ3DkcsbYNE6H8uQQuVA');
       }
 
       setStatus(msg) {
@@ -504,7 +353,6 @@
       setView(view) {
         document.getElementById('feedView').style.display = view === 'feed' ? 'block' : 'none';
         document.getElementById('watchView').style.display = view === 'watch' ? 'grid' : 'none';
-        document.getElementById('shortsView').style.display = view === 'shorts' ? 'block' : 'none';
         document.getElementById('channelView').style.display = view === 'channel' ? 'flex' : 'none';
         if (view !== 'watch') document.getElementById('videoIframe').src = '';
         window.scrollTo(0, 0);
@@ -512,93 +360,166 @@
 
       showFeed() { this.setView('feed'); }
 
-      async loadFeed(query) {
-        this.setStatus('Loading videos...');
-        this.setView('feed');
-        try {
-          const res = await fetch(`${CONFIG.BASE_URL}/search?part=snippet&type=video&maxResults=24&q=${encodeURIComponent(query)}&key=${CONFIG.API_KEY}`);
-          const data = await res.json();
-          if (!data.items) throw new Error('API limit or error');
-          
-          // Fetch channel avatars in batch
-          const channelIds = [...new Set(data.items.map(i => i.snippet.channelId))].join(',');
-          const chRes = await fetch(`${CONFIG.BASE_URL}/channels?part=snippet&id=${channelIds}&key=${CONFIG.API_KEY}`);
-          const chData = await chRes.json();
-          const avatarMap = new Map();
-          chData.items?.forEach(c => avatarMap.set(c.id, c.snippet.thumbnails.default.url));
+      // Converts Channel ID (UC...) to Uploads Playlist ID (UU...)
+      getUploadsPlaylistId(channelId) {
+        if (channelId.startsWith('UC')) {
+          return 'UU' + channelId.substring(2);
+        }
+        return channelId;
+      }
 
-          this.renderGrid(data.items.map(i => ({
-            id: i.id.videoId,
+      // Fetches ALL public uploads from a channel using pagination
+      async loadAllChannelVideos(channelId, isNextPage = false) {
+        this.setView('feed');
+
+        if (!isNextPage) {
+          this.currentUploadsPlaylistId = this.getUploadsPlaylistId(channelId);
+          this.nextPageToken = null;
+          document.getElementById('videoGrid').innerHTML = '';
+        }
+
+        this.setStatus('Loading videos...');
+
+        let url = `${CONFIG.BASE_URL}/playlistItems?part=snippet,contentDetails&playlistId=${this.currentUploadsPlaylistId}&maxResults=50&key=${CONFIG.API_KEY}`;
+        if (this.nextPageToken) {
+          url += `&pageToken=${this.nextPageToken}`;
+        }
+
+        try {
+          const res = await fetch(url);
+          const data = await res.json();
+          if (!data.items) throw new Error('API limit or network error');
+
+          this.nextPageToken = data.nextPageToken || null;
+
+          const items = data.items.map(i => ({
+            id: i.snippet.resourceId.videoId,
             channelId: i.snippet.channelId,
             title: i.snippet.title,
-            thumb: i.snippet.thumbnails.high?.url || i.snippet.thumbnails.default?.url,
+            thumb: i.snippet.thumbnails.high?.url || i.snippet.thumbnails.medium?.url,
             channel: i.snippet.channelTitle,
-            avatar: avatarMap.get(i.snippet.channelId) || ''
-          })), 'videoGrid');
+            publishedAt: i.snippet.publishedAt
+          }));
+
+          this.appendGridItems(items, 'videoGrid');
+          this.updateLoadMoreButton();
+          this.setStatus(null);
         } catch (e) {
-          this.setStatus(`Error: ${e.message}`);
+          this.setStatus(`Error loading channel uploads: ${e.message}`);
         }
       }
 
-      filterCategory(cat) {
-        document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.textContent === cat));
-        this.loadFeed(cat === 'All' ? 'trending' : cat);
-      }
-
-      async searchVideos() {
-        const q = document.getElementById('searchInput').value.trim();
-        if (q) this.loadFeed(q);
-      }
-
-      renderGrid(items, targetId) {
+      appendGridItems(items, targetId) {
         const grid = document.getElementById(targetId);
-        grid.innerHTML = '';
-        this.setStatus(null);
 
         items.forEach(item => {
-          if (!item.id) return;
+          if (!item.id || item.title === 'Private video' || item.title === 'Deleted video') return;
+
           const card = document.createElement('div');
           card.className = 'video-card';
           card.innerHTML = `
             <div class="thumbnail-box"><img src="${item.thumb}" loading="lazy" /></div>
             <div class="video-meta-row">
-              <img class="card-channel-avatar" src="${item.avatar}" />
-              <div class="card-info">
+              <div>
                 <div class="card-title">${item.title}</div>
                 <div class="card-channel-name">${item.channel}</div>
+                <div class="card-stats">${new Date(item.publishedAt).toLocaleDateString()}</div>
               </div>
             </div>
           `;
+
           card.onclick = (e) => {
             if (e.target.classList.contains('card-channel-name')) this.loadChannel(item.channelId);
-            else this.watchVideo(item.id, item.title, item.channelId, item.channel, item.avatar);
+            else this.watchVideo(item.id, item.title, item.channelId, item.channel, '');
           };
+
           grid.appendChild(card);
         });
       }
 
-      async watchVideo(id, title, channelId, channelName, avatarUrl) {
-        this.activeVideoId = id;
-        this.setView('watch');
+      updateLoadMoreButton() {
+        let btn = document.getElementById('loadMoreBtn');
+        
+        if (this.nextPageToken) {
+          if (!btn) {
+            btn = document.createElement('button');
+            btn.id = 'loadMoreBtn';
+            btn.textContent = 'Load More Videos';
+            btn.style.cssText = 'display:block; margin: 30px auto; padding: 12px 24px; background: var(--yt-surface); color: #fff; border: 1px solid var(--yt-border); border-radius: 20px; cursor: pointer; font-weight: 500;';
+            btn.onclick = () => this.loadAllChannelVideos(this.currentUploadsPlaylistId, true);
+            document.getElementById('feedView').appendChild(btn);
+          }
+          btn.style.display = 'block';
+        } else if (btn) {
+          btn.style.display = 'none';
+        }
+      }
 
-        document.getElementById('videoIframe').src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1`;
+      filterCategory(cat) {
+        if (cat === 'All') {
+          this.loadAllChannelVideos('UCX6OQ3DkcsbYNE6H8uQQuVA');
+        } else {
+          this.searchVideosQuery(cat);
+        }
+      }
+
+      async searchVideos() {
+        const q = document.getElementById('searchInput').value.trim();
+        if (q) this.searchVideosQuery(q);
+      }
+
+      async searchVideosQuery(query) {
+        this.setStatus('Searching...');
+        this.setView('feed');
+        document.getElementById('videoGrid').innerHTML = '';
+        
+        let btn = document.getElementById('loadMoreBtn');
+        if (btn) btn.style.display = 'none';
+
+        try {
+          const res = await fetch(`${CONFIG.BASE_URL}/search?part=snippet&type=video&maxResults=24&q=${encodeURIComponent(query)}&key=${CONFIG.API_KEY}`);
+          const data = await res.json();
+          if (!data.items) throw new Error('Search failed');
+
+          const items = data.items.map(i => ({
+            id: i.id.videoId,
+            channelId: i.snippet.channelId,
+            title: i.snippet.title,
+            thumb: i.snippet.thumbnails.high?.url,
+            channel: i.snippet.channelTitle,
+            publishedAt: i.snippet.publishedAt
+          }));
+
+          this.appendGridItems(items, 'videoGrid');
+          this.setStatus(null);
+        } catch (e) {
+          this.setStatus(`Search error: ${e.message}`);
+        }
+      }
+
+      async watchVideo(id, title, channelId, channelName, avatarUrl) {
+        this.setView('watch');
+        document.getElementById('videoIframe').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
         document.getElementById('watchTitle').textContent = title;
         document.getElementById('watchChannelName').textContent = channelName;
         document.getElementById('watchChannelAvatar').src = avatarUrl;
-        document.getElementById('watchSubCount').textContent = '...';
-        document.getElementById('watchLikeCount').textContent = 'Like';
-        document.getElementById('commentInput').value = '';
-
         document.getElementById('watchChannelRow').onclick = () => this.loadChannel(channelId);
 
         try {
-          const res = await fetch(`${CONFIG.BASE_URL}/videos?part=statistics&id=${id}&key=${CONFIG.API_KEY}`);
+          const res = await fetch(`${CONFIG.BASE_URL}/videos?part=snippet,statistics&id=${id}&key=${CONFIG.API_KEY}`);
           const data = await res.json();
-          if (data.items?.[0]) document.getElementById('watchLikeCount').textContent = helpers.format(data.items[0].statistics.likeCount);
+          const item = data.items?.[0];
+          if (item) {
+            document.getElementById('watchDescription').textContent = `${helpers.format(item.statistics.viewCount)} views • ${new Date(item.snippet.publishedAt).toLocaleDateString()}\n\n${item.snippet.description}`;
+          }
 
-          const chRes = await fetch(`${CONFIG.BASE_URL}/channels?part=statistics&id=${channelId}&key=${CONFIG.API_KEY}`);
+          const chRes = await fetch(`${CONFIG.BASE_URL}/channels?part=snippet,statistics&id=${channelId}&key=${CONFIG.API_KEY}`);
           const chData = await chRes.json();
-          if (chData.items?.[0]) document.getElementById('watchSubCount').textContent = `${helpers.format(chData.items[0].statistics.subscriberCount)} subscribers`;
+          if (chData.items?.[0]) {
+            const ch = chData.items[0];
+            document.getElementById('watchSubCount').textContent = `${helpers.format(ch.statistics.subscriberCount)} subscribers`;
+            document.getElementById('watchChannelAvatar').src = ch.snippet.thumbnails.default.url;
+          }
         } catch (e) {}
 
         this.loadComments(id);
@@ -606,104 +527,83 @@
 
       async loadComments(videoId) {
         const list = document.getElementById('commentsList');
-        list.innerHTML = '<p style="color:var(--text-muted)">Loading comments...</p>';
+        list.innerHTML = '<p style="color:var(--yt-text-secondary)">Loading comments...</p>';
 
         try {
-          const res = await fetch(`${CONFIG.BASE_URL}/commentThreads?part=snippet&videoId=${videoId}&maxResults=20&key=${CONFIG.API_KEY}`);
+          const res = await fetch(`${CONFIG.BASE_URL}/commentThreads?part=snippet,replies&videoId=${videoId}&maxResults=20&key=${CONFIG.API_KEY}`);
           const data = await res.json();
           
-          const local = this.localComments.get(videoId) || [];
-          const api = (data.items || []).map(i => {
+          document.getElementById('commentCountHeader').textContent = `${data.items?.length || 0} Comments`;
+
+          list.innerHTML = (data.items || []).map(i => {
             const c = i.snippet.topLevelComment.snippet;
-            return { author: c.authorDisplayName, avatar: c.authorProfileImageUrl, text: c.textDisplay };
-          });
-
-          const combined = [...local, ...api];
-          document.getElementById('commentCountHeader').textContent = `${combined.length} Comments`;
-
-          list.innerHTML = combined.map(c => `
-            <div class="comment-item">
-              <img src="${c.avatar}" />
-              <div class="comment-content">
-                <div class="comment-author-line"><span class="comment-author">@${c.author}</span></div>
-                <div class="comment-text">${c.text}</div>
+            const replies = i.replies?.comments || [];
+            
+            return `
+              <div class="comment-item">
+                <img src="${c.authorProfileImageUrl}" />
+                <div>
+                  <div class="comment-author">${c.authorDisplayName}</div>
+                  <div class="comment-text">${c.textDisplay}</div>
+                  
+                  ${replies.length ? `
+                    <div class="comment-replies">
+                      ${replies.map(r => `
+                        <div class="comment-item">
+                          <img src="${r.snippet.authorProfileImageUrl}" />
+                          <div>
+                            <div class="comment-author">${r.snippet.authorDisplayName}</div>
+                            <div class="comment-text">${r.snippet.textDisplay}</div>
+                          </div>
+                        </div>
+                      `).join('')}
+                    </div>
+                  ` : ''}
+                </div>
               </div>
-            </div>
-          `).join('');
+            `;
+          }).join('');
         } catch (e) {
-          list.innerHTML = '<p style="color:var(--text-muted)">Comments unavailable.</p>';
+          list.innerHTML = '<p style="color:var(--yt-text-secondary)">Comments disabled or unavailable.</p>';
         }
-      }
-
-      postComment() {
-        const input = document.getElementById('commentInput');
-        const text = input.value.trim();
-        if (!text || !this.activeVideoId) return;
-
-        const comment = { author: 'You', avatar: 'https://www.gstatic.com/images/branding/product/2x/avatar_square_grey_512dp.png', text };
-        if (!this.localComments.has(this.activeVideoId)) this.localComments.set(this.activeVideoId, []);
-        this.localComments.get(this.activeVideoId).unshift(comment);
-        input.value = '';
-        this.loadComments(this.activeVideoId);
-      }
-
-      async showShorts() {
-        this.setView('shorts');
-        const container = document.getElementById('shortsView');
-        if (container.children.length > 0) return;
-
-        this.setStatus('Loading Shorts...');
-        try {
-          const res = await fetch(`${CONFIG.BASE_URL}/search?part=snippet&type=video&videoDuration=short&q=%23shorts&maxResults=10&key=${CONFIG.API_KEY}`);
-          const data = await res.json();
-          container.innerHTML = '';
-          this.setStatus(null);
-
-          data.items.forEach((item, idx) => {
-            const slot = document.createElement('div');
-            slot.className = 'short-slot';
-            slot.innerHTML = `<div id="short-${idx}" style="width:100%;height:100%;"></div>`;
-            container.appendChild(slot);
-
-            if (window.YT && YT.Player) {
-              new YT.Player(`short-${idx}`, {
-                videoId: item.id.videoId,
-                playerVars: { autoplay: 0, controls: 1, loop: 1, playlist: item.id.videoId }
-              });
-            }
-          });
-        } catch (e) { this.setStatus('Failed to load Shorts'); }
       }
 
       async loadChannel(channelId) {
         this.setView('channel');
-        this.setStatus('Loading channel...');
+        this.setStatus('Loading channel metrics...');
         try {
-          const res = await fetch(`${CONFIG.BASE_URL}/channels?part=snippet,contentDetails,statistics&id=${channelId}&key=${CONFIG.API_KEY}`);
+          const res = await fetch(`${CONFIG.BASE_URL}/channels?part=snippet,brandingSettings,contentDetails,statistics&id=${channelId}&key=${CONFIG.API_KEY}`);
           const data = await res.json();
           const ch = data.items[0];
 
           document.getElementById('channelName').textContent = ch.snippet.title;
-          document.getElementById('channelAvatar').src = ch.snippet.thumbnails.default.url;
-          document.getElementById('channelMeta').textContent = `${helpers.format(ch.statistics.subscriberCount)} subscribers • ${helpers.format(ch.statistics.videoCount)} videos`;
+          document.getElementById('channelAvatar').src = ch.snippet.thumbnails.high.url;
+          document.getElementById('channelBanner').src = ch.brandingSettings?.image?.bannerExternalUrl || '';
+          document.getElementById('channelAbout').textContent = ch.snippet.description;
+          
+          document.getElementById('channelStatsBar').innerHTML = `
+            <span><strong>${helpers.format(ch.statistics.subscriberCount)}</strong> subscribers</span>
+            <span><strong>${helpers.format(ch.statistics.videoCount)}</strong> videos</span>
+            <span><strong>${helpers.format(ch.statistics.viewCount)}</strong> total views</span>
+          `;
 
           const plId = ch.contentDetails.relatedPlaylists.uploads;
-          const plRes = await fetch(`${CONFIG.BASE_URL}/playlistItems?part=snippet&playlistId=${plId}&maxResults=20&key=${CONFIG.API_KEY}`);
+          const plRes = await fetch(`${CONFIG.BASE_URL}/playlistItems?part=snippet&playlistId=${plId}&maxResults=24&key=${CONFIG.API_KEY}`);
           const plData = await plRes.json();
 
-          this.renderGrid(plData.items.map(i => ({
+          this.appendGridItems(plData.items.map(i => ({
             id: i.snippet.resourceId.videoId,
             channelId,
             title: i.snippet.title,
-            thumb: i.snippet.thumbnails.high?.url || i.snippet.thumbnails.default?.url,
+            thumb: i.snippet.thumbnails.high?.url,
             channel: ch.snippet.title,
-            avatar: ch.snippet.thumbnails.default.url
+            publishedAt: i.snippet.publishedAt
           })), 'channelGrid');
-        } catch (e) { this.setStatus('Error loading channel'); }
+        } catch (e) { this.setStatus('Error loading channel data.'); }
       }
     }
 
-    const app = new StreamHubApp();
+    const app = new YouTubeClone();
   </script>
 </body>
 </html>
